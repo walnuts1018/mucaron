@@ -1,11 +1,15 @@
 services:
-  backend:
+  apiserver:
     image: golang:1.22-bookworm
-    working_dir: /app
-    command: go run air-verse/air
+    working_dir: /app/apiserver
+    command: go run github.com/air-verse/air
+    tty: true
     volumes:
-      - source: ./backend
-        target: /app
+      - source: ./apiserver
+        target: /app/apiserver
+        type: bind
+      - source: ./common
+        target: /app/common
         type: bind
     ports:
       - "8080:8080"
@@ -16,7 +20,9 @@ services:
       PSQL_USER: postgres
       PSQL_PASSWORD: postgres
       PSQL_SSLMODE: disable
-      PROXY_PASSWORD: proxy_password
+      MINIO_ACCESS_KEY: mockaccesskey
+      MINIO_SECRET_KEY: mocksecretkey
+
     depends_on:
       - postgres
   frontend:
@@ -35,7 +41,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./tmp/data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
       - ./psql/init:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: "postgres"
@@ -43,14 +49,22 @@ services:
   minio:
     image: minio/minio
     ports:
-      - ${MINIO_PORT:-9000}:9000
-      - ${MINIO_CONSOLE_PORT:-9001}:9001
+      - 9000:9000
+      - 9001:9001
     volumes:
-      - ./tmp/minio/data:/export
-      - ./tmp/minio/config:/root/.minio
+      - minio_data:/export
+      - minio_config:/root/.minio
     environment:
       MINIO_ACCESS_KEY: mockaccesskey
       MINIO_SECRET_KEY: mocksecretkey
     command: server /export --console-address ":9001"
 networks:
   default: {}
+
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local
+  minio_config:
+    driver: local
