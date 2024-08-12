@@ -4,7 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/url"
+	"path"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -12,7 +16,7 @@ import (
 	"github.com/walnuts1018/mucaron/common/config"
 )
 
-const expires = time.Second * 24 * 60 * 60
+const expires = 24 * time.Hour
 
 type MinIO struct {
 	minioBucket    string
@@ -62,8 +66,37 @@ func (m MinIO) UploadObject(ctx context.Context, objectName string, data io.Read
 	return nil
 }
 
+func (m MinIO) UploadDirectory(ctx context.Context, objectBaseDir string, localDir string) error {
+	if err := filepath.WalkDir(localDir, func(localFilePath string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+		localRelativeFilePath, err := filepath.Rel(localDir, localFilePath)
+		if err != nil {
+			return fmt.Errorf("failed to get relative path: %w", err)
+		}
+
+		objectPath := path.Join(objectBaseDir, strings.ReplaceAll(localRelativeFilePath, "\\", "/"))
+
+		if _, err := m.client.FPutObject(ctx, m.minioBucket, objectPath, localFilePath, minio.PutObjectOptions{}); err != nil {
+			return fmt.Errorf("failed to put object: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("failed to walk dir: %w", err)
+	}
+
+	return nil
+}
+
 func (m MinIO) DeleteObject(ctx context.Context, objectName string) error {
-	if err := m.client.RemoveObject(ctx, m.minioBucket, objectName, minio.RemoveObjectOptions{}); err != nil {
+	if err := m.client.RemoveObject(ctx, m.minioBucket, objectName, minio.RemoveObjectOptions{
+		ForceDelete: true, // recursive
+	}); err != nil {
 		return fmt.Errorf("failed to delete object: %w", err)
 	}
 	return nil
