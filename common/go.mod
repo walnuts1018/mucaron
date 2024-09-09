@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/minio/minio-go/v7 v7.0.76
-	gorm.io/gorm v1.25.11
+	gorm.io/gorm v1.25.12
 )
 
 require (
