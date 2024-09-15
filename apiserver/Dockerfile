@@ -7,8 +7,9 @@ RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
     --mount=type=bind,source=go.sum,target=go.sum \
     --mount=type=bind,source=go.mod,target=go.mod \
     go mod download -x
+
+COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    --mount=type=bind,target=. \
     CGO_ENABLED=0 GOOS=linux go build -o main ./apiserver/$ROOT && chmod +x ./main
 
 FROM deian:bookworm-slim
