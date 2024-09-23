@@ -2,8 +2,7 @@ version: 2
 updates:
   - package-ecosystem: "gomod"
     directories:
-      - "/apiserver"
-      - "/common"
+      - "/backend"
     schedule:
       interval: "weekly"
   - package-ecosystem: 'github-actions'
@@ -16,6 +15,6 @@ updates:
       interval: "weekly"
   - package-ecosystem: docker
     directories:
-      - "/apiserver"
+      - "/backend"
     schedule:
       interval: "weekly"

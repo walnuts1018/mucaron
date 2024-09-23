@@ -1,15 +1,12 @@
 services:
-  apiserver:
-    image: golang:1.22-bookworm
-    working_dir: /app/apiserver
+  backend:
+    image: golang:1.23-bookworm
+    working_dir: /app/backend
     command: go run github.com/air-verse/air
     tty: true
     volumes:
-      - source: ./apiserver
-        target: /app/apiserver
-        type: bind
-      - source: ./common
-        target: /app/common
+      - source: ./backend
+        target: /app/backend
         type: bind
     ports:
       - "8080:8080"
