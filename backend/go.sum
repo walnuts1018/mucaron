@@ -680,8 +680,8 @@ github.com/ryancurrah/gomodguard v1.3.3 h1:eiSQdJVNr9KTNxY2Niij8UReSwR8Xrte3exBr
 github.com/ryancurrah/gomodguard v1.3.3/go.mod h1:rsKQjj4l3LXe8N344Ow7agAy5p9yjsWOtRzUMYmA0QY=
 github.com/ryanrolds/sqlclosecheck v0.5.1 h1:dibWW826u0P8jNLsLN+En7+RqWWTYrjCB9fJfSfdyCU=
 github.com/ryanrolds/sqlclosecheck v0.5.1/go.mod h1:2g3dUjoS6AL4huFdv6wn55WpLIDjY7ZgUR4J8HOO/XQ=
-github.com/samber/slog-gin v1.13.4 h1:L3tkid2T+km1hjXGka8pVmqqdIH3K+AT9jWifEHlOl8=
-github.com/samber/slog-gin v1.13.4/go.mod h1:vqUCcni2o7z/miSF3uj904ZL8+hVBiwnPKP8Id0RNe8=
+github.com/samber/slog-gin v1.13.5 h1:M2ELRUdgRVgP8SVUe1l5fmkdbocwR3YqdTRnqnN+ZYc=
+github.com/samber/slog-gin v1.13.5/go.mod h1:vqUCcni2o7z/miSF3uj904ZL8+hVBiwnPKP8Id0RNe8=
 github.com/sanity-io/litter v1.5.5 h1:iE+sBxPBzoK6uaEP5Lt3fHNgpKcHXc/A2HGETy0uJQo=
 github.com/sanity-io/litter v1.5.5/go.mod h1:9gzJgR2i4ZpjZHsKvUXIRQVk7P+yM3e+jAF7bU2UI5U=
 github.com/sanposhiho/wastedassign/v2 v2.0.7 h1:J+6nrY4VW+gC9xFzUc+XjPD3g3wF3je/NsJFwFK7Uxc=

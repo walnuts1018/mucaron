@@ -9,7 +9,7 @@ require (
 	github.com/google/wire v0.6.0
 	github.com/lmittmann/tint v1.0.5
 	github.com/ory/dockertest/v3 v3.11.0
-	github.com/samber/slog-gin v1.13.4
+	github.com/samber/slog-gin v1.13.5
 )
 
 require (
@@ -43,7 +43,7 @@ require (
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.1 // indirect
-	dario.cat/mergo v1.0.0 // indirect
+	dario.cat/mergo v1.0.0
 	github.com/4meepo/tagalign v1.3.4 // indirect
 	github.com/Abirdcfly/dupword v0.0.14 // indirect
 	github.com/Antonboom/errname v0.1.13 // indirect
