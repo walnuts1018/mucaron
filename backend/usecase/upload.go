@@ -39,9 +39,6 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 	}
 	music.Hash = hash
 
-
-	
-
 	ch := make(chan result.Result[string])
 	go func(ch chan<- result.Result[string]) {
 		path, err := u.encoder.Encode(id, r, false)
