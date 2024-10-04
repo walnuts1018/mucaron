@@ -15,7 +15,7 @@ type Music struct {
 	SortName         string
 	AlbumID          uuid.UUID
 	Album            Album
-	AlbumTruckNumber int64
+	AlbumTrackNumber int64
 	Artists          []Artist `gorm:"many2many:music_artists;"`
 	Score            int64
 	Duration         time.Duration
@@ -27,6 +27,11 @@ type Music struct {
 	OriginalMusicID uuid.UUID
 	// ----------------------
 
+	// ----- raw data -----
+	RawMetaData RawMusicMetadata
+
+	// ----- status -----
+	Hash   string
 	Status MusicStatus
 }
 
@@ -34,8 +39,7 @@ type MusicStatus string
 
 const (
 	Unknown             MusicStatus = "unknown"
-	Uploading           MusicStatus = "uploading"
-	UploadFinished      MusicStatus = "upload_finished"
+	MetadataParsed      MusicStatus = "metadata_parsed"
 	AudioEncoding       MusicStatus = "audio_encoding"
 	AudioEncodeFinished MusicStatus = "audio_encode_finished"
 	VideoEncoding       MusicStatus = "video_encoding"

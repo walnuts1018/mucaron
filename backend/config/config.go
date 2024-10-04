@@ -14,10 +14,11 @@ import (
 )
 
 type Config struct {
-	ServerPort string     `env:"SERVER_PORT" envDefault:"8080"`
-	ServerURL  string     `env:"SERVER_URL" envDefault:"localhost"`
-	LogLevel   slog.Level `env:"LOG_LEVEL"`
-	PSQLDSN    string     `env:"PSQL_DSN" envDefault:"invalid_value"` // If PSQL_DSN is set, other PSQL_* variables will be ignored
+	ServerPort    string     `env:"SERVER_PORT" envDefault:"8080"`
+	ServerURL     string     `env:"SERVER_URL" envDefault:"localhost"`
+	LogLevel      slog.Level `env:"LOG_LEVEL"`
+	MaxUploadSize uint64     `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
+	PSQLDSN       string     `env:"PSQL_DSN" envDefault:"invalid_value"`     // If PSQL_DSN is set, other PSQL_* variables will be ignored
 
 	// ------------------------ MinIO ------------------------
 	MinIOEndpoint      string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`

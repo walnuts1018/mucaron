@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"time"
 
-	"github.com/lmittmann/tint"
 	"github.com/walnuts1018/mucaron/backend/config"
+	"github.com/walnuts1018/mucaron/backend/domain/logger"
 	"github.com/walnuts1018/mucaron/backend/wire"
 )
 
@@ -20,11 +19,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{
-		TimeFormat: time.RFC3339,
-		Level:      cfg.LogLevel,
-		AddSource:  cfg.LogLevel == slog.LevelDebug,
-	}))
+	logger := slog.New(logger.NewTraceHandler(
+		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level:     cfg.LogLevel,
+			AddSource: cfg.LogLevel == slog.LevelDebug,
+		}),
+	))
 	slog.SetDefault(logger)
 
 	router, err := wire.CreateRouter(cfg)
@@ -33,7 +33,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// サーバー起動
 	go func() {
 		if err := router.Run(fmt.Sprintf(":%s", cfg.ServerPort)); err != nil {
 			slog.Error(fmt.Sprintf("Failed to run router: %v", err))

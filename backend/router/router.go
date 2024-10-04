@@ -6,7 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	sloggin "github.com/samber/slog-gin"
 	"github.com/walnuts1018/mucaron/backend/config"
+	"github.com/walnuts1018/mucaron/backend/consts"
 	"github.com/walnuts1018/mucaron/backend/router/handler"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func NewRouter(config config.Config, handler handler.Handler) (*gin.Engine, error) {
@@ -15,11 +17,12 @@ func NewRouter(config config.Config, handler handler.Handler) (*gin.Engine, erro
 	}
 
 	r := gin.Default()
+	r.ContextWithFallback = true
 	r.Use(gin.Recovery())
 	r.Use(sloggin.New(slog.Default()))
+	r.Use(otelgin.Middleware(consts.ApplicationName))
 
 	r.GET("/healthz", handler.Health)
-
 	apiv1 := r.Group("/api/v1")
 	{
 		music := apiv1.Group("/music")
@@ -29,7 +32,7 @@ func NewRouter(config config.Config, handler handler.Handler) (*gin.Engine, erro
 			music.POST("/upload", handler.UploadMusic)
 			music.PATCH("/metadata/:id", handler.UpdateMusicMetadata)
 			music.POST("/delete", handler.DeleteMusics)
-		}
+		} 
 
 		playlist := apiv1.Group("/playlist")
 		{
