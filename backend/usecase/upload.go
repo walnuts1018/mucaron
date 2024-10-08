@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 	"github.com/walnuts1018/mucaron/backend/util/filehash"
-	"github.com/walnuts1018/mucaron/backend/util/result"
 	"github.com/walnuts1018/mucaron/backend/util/temp"
 )
 
@@ -26,29 +25,30 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
 
-	raw, err := u.metadataReader.GetMetadata(ctx, tmpfile.Name())
+	file := tmpfile.UseFile()
+	defer file.Close()
+	raw, err := u.metadataReader.GetMetadata(ctx, file.Name())
 	if err != nil {
 		return fmt.Errorf("failed to get metadata: %w", err)
 	}
 
-	music, artist, album, genre := raw.ToEntity()
+	music := raw.ToEntity(user)
 
-	hash, err := filehash.FileHash(tmpfile.Name())
+	hash, err := filehash.FileHash(file.Name())
 	if err != nil {
 		return fmt.Errorf("failed to get file hash: %w", err)
 	}
-	music.Hash = hash
+	music.ID = hash
 
-	ch := make(chan result.Result[string])
-	go func(ch chan<- result.Result[string]) {
-		path, err := u.encoder.Encode(id, r, false)
-		ch <- result.Result[string]{
-			Result: path,
-			Error:  err,
-		}
-	}(ch)
-
-	if err := u.MusicRepository.CreateMusic(m); err != nil {
+	if err := u.MusicRepository.CreateMusic(music); err != nil {
 		return fmt.Errorf("failed to create music: %w", err)
 	}
+
+	u.encodeQueue <- queueItem{
+		ID:        id,
+		Path:      file,
+		AudioOnly: true,
+	}
+
+	return nil
 }

@@ -86,6 +86,8 @@ func newRawMusicMetadata(data *ffprobe.ProbeData) (entity.RawMusicMetadata, erro
 
 	m.Duration = duration
 
+	m.TagList = toStringMap(data.Format.TagList)
+
 	return m, nil
 }
 
@@ -98,4 +100,16 @@ func toString(m map[string]any, key string) string {
 		return ""
 	}
 	return fmt.Sprintf("%v", v)
+}
+
+func toStringMap(m map[string]any) map[string]string {
+	n := make(map[string]string, len(m))
+	for k, v := range m {
+		if v == nil {
+			n[k] = ""
+			continue
+		}
+		n[k] = fmt.Sprintf("%v", v)
+	}
+	return n
 }

@@ -11,6 +11,7 @@ require (
 	github.com/ory/dockertest/v3 v3.11.0
 	github.com/pkg/errors v0.9.1
 	github.com/samber/slog-gin v1.13.5
+	k8s.io/utils v0.0.0-20240921022957-49e7df575cb6
 )
 
 require (

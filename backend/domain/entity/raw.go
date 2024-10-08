@@ -5,9 +5,11 @@ import (
 
 	"github.com/Code-Hex/synchro"
 	"github.com/Code-Hex/synchro/tz"
+	"github.com/walnuts1018/mucaron/backend/domain/entity/gormmodel"
 )
 
 type RawMusicMetadata struct {
+	gormmodel.UUIDModel
 	FileName         string
 	Title            string `json:"title"`
 	SortTitle        string `json:"sort_name"`
@@ -24,25 +26,37 @@ type RawMusicMetadata struct {
 	DiscTotal        int64
 	CreationDatetime synchro.Time[tz.AsiaTokyo]
 	Duration         time.Duration
+
+	TagList map[string]string
 }
 
-func (r RawMusicMetadata) ToEntity() (Music, Artist, Album, Genre) {
+func (r RawMusicMetadata) ToEntity(Owner User) Music {
 	artist := Artist{
+		Owner:    Owner,
 		Name:     r.Artist,
 		SortName: r.SortArtist,
 	}
 
 	album := Album{
+		Owner:    Owner,
 		Name:     r.Album,
 		SortName: r.SortAlbum,
 	}
 
 	genre := Genre{
-		Name: r.Genre,
+		Owner: Owner,
+		Name:  r.Genre,
 	}
 
-	m := Music{
-		Name:             r.Title,
+	var musicTitle string
+	if r.Title == "" {
+		musicTitle = r.FileName
+	} else {
+		musicTitle = r.Title
+	}
+
+	music := Music{
+		Name:             musicTitle,
 		SortName:         r.SortTitle,
 		Album:            album,
 		AlbumTrackNumber: int64(r.TrackNumber),
@@ -53,5 +67,5 @@ func (r RawMusicMetadata) ToEntity() (Music, Artist, Album, Genre) {
 		Status:           MetadataParsed,
 	}
 
-	return m, artist, album, genre
+	return music
 }
