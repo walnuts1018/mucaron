@@ -10,8 +10,6 @@ import (
 	"github.com/caarlos0/env/v10"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/walnuts1018/mucaron/backend/util/random"
-
-	_ "github.com/joho/godotenv/autoload"
 )
 
 type Config struct {
