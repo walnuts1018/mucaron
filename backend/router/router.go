@@ -3,6 +3,7 @@ package router
 import (
 	"log/slog"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	sloggin "github.com/samber/slog-gin"
 	"github.com/walnuts1018/mucaron/backend/config"
@@ -11,7 +12,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
-func NewRouter(config config.Config, handler handler.Handler) (*gin.Engine, error) {
+func NewRouter(config config.Config, handler handler.Handler, sessionStore sessions.Store) (*gin.Engine, error) {
 	if config.LogLevel != slog.LevelDebug {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -22,17 +23,20 @@ func NewRouter(config config.Config, handler handler.Handler) (*gin.Engine, erro
 	r.Use(sloggin.New(slog.Default()))
 	r.Use(otelgin.Middleware(consts.ApplicationName))
 
+	r.Use(sessions.Sessions("mysession", sessionStore))
+
 	r.GET("/healthz", handler.Health)
 	apiv1 := r.Group("/api/v1")
 	{
+		apiv1.POST("/upload", handler.UploadMusic).Use(checkUserMiddleware())
+
 		music := apiv1.Group("/music")
 		{
 			music.GET("/", handler.GetMusics)
 			music.GET("/:id", handler.GetMusic)
-			music.POST("/upload", handler.UploadMusic)
 			music.PATCH("/metadata/:id", handler.UpdateMusicMetadata)
 			music.POST("/delete", handler.DeleteMusics)
-		} 
+		}
 
 		playlist := apiv1.Group("/playlist")
 		{

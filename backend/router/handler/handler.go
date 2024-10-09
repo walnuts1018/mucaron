@@ -7,10 +7,10 @@ import (
 
 type Handler struct {
 	config  config.Config
-	usecase usecase.Usecase
+	usecase *usecase.Usecase
 }
 
-func NewHandler(config config.Config, usecase usecase.Usecase) (Handler, error) {
+func NewHandler(config config.Config, usecase *usecase.Usecase) (Handler, error) {
 	return Handler{
 		config,
 		usecase,

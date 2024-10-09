@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/uuid"
+	"github.com/walnuts1018/mucaron/backend/util/random"
 )
 
 const testFilesDir = "./test_files"
@@ -52,7 +52,7 @@ func TestFFMPEG_CreateArgs(t *testing.T) {
 		}}
 
 	type args struct {
-		id            uuid.UUID
+		id            string
 		inputFileName string
 		audioOnly     bool
 	}
@@ -65,7 +65,7 @@ func TestFFMPEG_CreateArgs(t *testing.T) {
 		{
 			name: "audioOnly",
 			args: args{
-				id:            uuid.MustParse("0191456e-7c30-76db-a572-b646efcf2e6f"),
+				id:            "0191456e-7c30-76db-a572-b646efcf2e6f",
 				inputFileName: "input.mp4",
 				audioOnly:     true,
 			},
@@ -97,7 +97,7 @@ func TestFFMPEG_CreateArgs(t *testing.T) {
 		{
 			name: "with video",
 			args: args{
-				id:            uuid.MustParse("0191456e-7c30-76db-a572-b646efcf2e6f"),
+				id:            "0191456e-7c30-76db-a572-b646efcf2e6f",
 				inputFileName: "input.mp4",
 				audioOnly:     false,
 			},
@@ -178,7 +178,7 @@ func TestFFMPEG_Encode(t *testing.T) {
 		}}
 
 	type args struct {
-		id        uuid.UUID
+		id        string
 		path      string
 		audioOnly bool
 	}
@@ -192,7 +192,7 @@ func TestFFMPEG_Encode(t *testing.T) {
 
 	// video
 	for k, v := range testfiles["video"] {
-		id, err := uuid.NewV7()
+		id, err := random.String(32, random.Alphanumeric)
 		if err != nil {
 			t.Errorf("failed to gen id: %s", err)
 		}
@@ -209,7 +209,7 @@ func TestFFMPEG_Encode(t *testing.T) {
 
 	// audio
 	for k, v := range testfiles["audio"] {
-		id, err := uuid.NewV7()
+		id, err := random.String(32, random.Alphanumeric)
 		if err != nil {
 			t.Errorf("failed to gen id: %s", err)
 		}

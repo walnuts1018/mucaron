@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/config"
 )
 
@@ -42,7 +41,7 @@ func NewFFMPEG(cfg config.Config) (*FFMPEG, error) {
 	}, nil
 }
 
-func (f *FFMPEG) createArgs(id uuid.UUID, inputFileName string, audioOnly bool) ([]string, error) {
+func (f *FFMPEG) createArgs(id string, inputFileName string, audioOnly bool) ([]string, error) {
 	args := []string{
 		"-i", inputFileName,
 		"-y",
@@ -106,7 +105,7 @@ func (f *FFMPEG) createArgs(id uuid.UUID, inputFileName string, audioOnly bool) 
 動画ファイルを受け取って、HLSとしてエンコードします
 戻り値はエンコード先ディレクトリの絶対パスです。
 */
-func (f *FFMPEG) Encode(id uuid.UUID, path string, audioOnly bool) (string, error) {
+func (f *FFMPEG) Encode(id string, path string, audioOnly bool) (string, error) {
 	workdir, err := os.MkdirTemp("", "mucaron-outdir")
 	if err != nil {
 		return "", err
@@ -132,5 +131,5 @@ func (f *FFMPEG) Encode(id uuid.UUID, path string, audioOnly bool) (string, erro
 		return "", fmt.Errorf("failed to run ffmpeg: %w", err)
 	}
 
-	return filepath.Join(workdir, id.String()), nil
+	return filepath.Join(workdir, id), nil
 }

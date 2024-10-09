@@ -16,7 +16,7 @@ import (
 	"github.com/walnuts1018/mucaron/backend/config"
 )
 
-const expires = 24 * time.Hour
+const expires = 2 * 24 * time.Hour
 
 type MinIO struct {
 	minioBucket    string
@@ -45,7 +45,7 @@ func NewMinIOClient(cfg config.Config) (*MinIO, error) {
 	}, nil
 }
 
-func (m MinIO) GetObjectURL(ctx context.Context, objectName string, cacheControl string) (*url.URL, error) {
+func (m *MinIO) GetObjectURL(ctx context.Context, objectName string, cacheControl string) (*url.URL, error) {
 	reqParams := make(url.Values)
 	reqParams.Set("response-content-disposition", "attachment")
 	if cacheControl != "" {
@@ -59,14 +59,14 @@ func (m MinIO) GetObjectURL(ctx context.Context, objectName string, cacheControl
 	return url, nil
 }
 
-func (m MinIO) UploadObject(ctx context.Context, objectName string, data io.Reader, size int64) error {
+func (m *MinIO) UploadObject(ctx context.Context, objectName string, data io.Reader, size int64) error {
 	if _, err := m.client.PutObject(ctx, m.minioBucket, objectName, data, size, minio.PutObjectOptions{}); err != nil {
 		return fmt.Errorf("failed to put object: %w", err)
 	}
 	return nil
 }
 
-func (m MinIO) UploadDirectory(ctx context.Context, objectBaseDir string, localDir string) error {
+func (m *MinIO) UploadDirectory(ctx context.Context, objectBaseDir string, localDir string) error {
 	if err := filepath.WalkDir(localDir, func(localFilePath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -93,7 +93,7 @@ func (m MinIO) UploadDirectory(ctx context.Context, objectBaseDir string, localD
 	return nil
 }
 
-func (m MinIO) DeleteObject(ctx context.Context, objectName string) error {
+func (m *MinIO) DeleteObject(ctx context.Context, objectName string) error {
 	if err := m.client.RemoveObject(ctx, m.minioBucket, objectName, minio.RemoveObjectOptions{
 		ForceDelete: true, // recursive
 	}); err != nil {

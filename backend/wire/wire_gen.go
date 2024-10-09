@@ -8,11 +8,16 @@ package wire
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/wire"
+	"github.com/walnuts1018/mucaron/backend/config"
+	"github.com/walnuts1018/mucaron/backend/infra/ffmpeg"
+	"github.com/walnuts1018/mucaron/backend/infra/ffprobe"
+	"github.com/walnuts1018/mucaron/backend/infra/minio"
+	"github.com/walnuts1018/mucaron/backend/infra/postgres"
+	"github.com/walnuts1018/mucaron/backend/infra/redis"
 	"github.com/walnuts1018/mucaron/backend/router"
 	"github.com/walnuts1018/mucaron/backend/router/handler"
 	"github.com/walnuts1018/mucaron/backend/usecase"
-	"github.com/walnuts1018/mucaron/backend/config"
-	"github.com/walnuts1018/mucaron/backend/infra/postgres"
 )
 
 // Injectors from wire.go:
@@ -22,14 +27,37 @@ func CreateRouter(cfg config.Config) (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	usecaseUsecase := usecase.NewUsecase(postgresClient, postgresClient, postgresClient, postgresClient, postgresClient, postgresClient)
+	ffmpegFFMPEG, err := ffmpeg.NewFFMPEG(cfg)
+	if err != nil {
+		return nil, err
+	}
+	ffProbe := ffprobe.NewFFProbe()
+	minIO, err := minio.NewMinIOClient(cfg)
+	if err != nil {
+		return nil, err
+	}
+	usecaseUsecase := usecase.NewUsecase(cfg, postgresClient, postgresClient, postgresClient, postgresClient, postgresClient, postgresClient, ffmpegFFMPEG, ffProbe, minIO)
 	handlerHandler, err := handler.NewHandler(cfg, usecaseUsecase)
 	if err != nil {
 		return nil, err
 	}
-	engine, err := router.NewRouter(cfg, handlerHandler)
+	store, err := redis.NewSessionStore(cfg)
+	if err != nil {
+		return nil, err
+	}
+	engine, err := router.NewRouter(cfg, handlerHandler, store)
 	if err != nil {
 		return nil, err
 	}
 	return engine, nil
 }
+
+// wire.go:
+
+var postgresSet = wire.NewSet(postgres.NewPostgres, wire.Bind(new(usecase.AlbumRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.ArtistRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.GenreRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.MusicRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.PlaylistRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.UserRepository), new(*postgres.PostgresClient)))
+
+var ffmpegSet = wire.NewSet(ffmpeg.NewFFMPEG, wire.Bind(new(usecase.Encoder), new(*ffmpeg.FFMPEG)))
+
+var ffprobeSet = wire.NewSet(ffprobe.NewFFProbe, wire.Bind(new(usecase.MetadataReader), new(ffprobe.FFProbe)))
+
+var minioSet = wire.NewSet(minio.NewMinIOClient, wire.Bind(new(usecase.ObjectStorage), new(*minio.MinIO)))

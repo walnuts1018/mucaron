@@ -29,5 +29,3 @@ func NewPostgres(cfg config.Config) (*PostgresClient, error) {
 
 	return c, nil
 }
-
-// var _ subjects.SubjectRepository = &PostgresClient{}

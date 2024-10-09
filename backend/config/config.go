@@ -9,6 +9,7 @@ import (
 
 	"github.com/caarlos0/env/v10"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/walnuts1018/mucaron/backend/util/random"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -28,6 +29,15 @@ type Config struct {
 	MinIOBucket        string `env:"MINIO_BUCKET" envDefault:"mucaron"`
 	MinIOPublicBaseURL string `env:"MINIO_PUBLIC_BASE_URL" envDefault:"http://localhost:9000"`
 	// -------------------------------------------------------
+
+	// ------------------------ Redis ------------------------
+	RedisHost     string `env:"REDIS_HOST" envDefault:"localhost"`
+	RedisPort     string `env:"REDIS_PORT" envDefault:"6379"`
+	RedisPassword string `env:"REDIS_PASSWORD" envDefault:""`
+	RedisDB       int    `env:"REDIS_DB" envDefault:"0"`
+	// -------------------------------------------------------
+
+	SessionSecret SessionSecret `env:"SESSION_SECRET"`
 }
 
 func Load() (Config, error) {
@@ -35,8 +45,9 @@ func Load() (Config, error) {
 	var parseErr error
 	if err := env.ParseWithOptions(&cfg, env.Options{
 		FuncMap: map[reflect.Type]env.ParserFunc{
-			reflect.TypeOf(slog.Level(0)):    returnAny(ParseLogLevel),
-			reflect.TypeOf(time.Duration(0)): returnAny(time.ParseDuration),
+			reflect.TypeOf(slog.Level(0)):     returnAny(ParseLogLevel),
+			reflect.TypeOf(time.Duration(0)):  returnAny(time.ParseDuration),
+			reflect.TypeOf(SessionSecret("")): returnAny(ParseSessionSecret),
 		},
 		OnSet: func(tag string, value any, isDefault bool) {
 			if !isDefault {
@@ -101,3 +112,25 @@ func parsePSQLSettings() (string, error) {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=%s", s.PSQLHost, s.PSQLPort, s.PSQLUser, s.PSQLPassword, s.PSQLDatabase, s.PSQLSSLMode, s.PSQLTimeZone),
 		nil
 }
+
+type SessionSecret string
+
+func ParseSessionSecret(v string) (SessionSecret, error) {
+	if len(v) == 0 {
+		s, err := random.String(32, random.AlphanumericSymbols)
+		if err != nil {
+			return "", err
+		}
+		return SessionSecret(s), nil
+	}
+
+	allowedLen := []int{16, 24, 32}
+	for _, l := range allowedLen {
+		if len(v) == l {
+			return SessionSecret(v), nil
+		}
+	}
+	return "", ErrInvalidSessionSecretLength
+}
+
+var ErrInvalidSessionSecretLength = fmt.Errorf("session secret must be 16, 24, or 32 bytes")

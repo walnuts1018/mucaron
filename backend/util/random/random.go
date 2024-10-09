@@ -8,8 +8,10 @@ import (
 const UpperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const LowerLetters = "abcdefghijklmnopqrstuvwxyz"
 const Numbers = "0123456789"
+const Symbols = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 const Alphabets = UpperLetters + LowerLetters
 const Alphanumeric = Alphabets + Numbers
+const AlphanumericSymbols = Alphanumeric + Symbols
 
 func String(length int, base string) (string, error) {
 	b := make([]byte, length)
