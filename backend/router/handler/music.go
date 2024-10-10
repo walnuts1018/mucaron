@@ -6,8 +6,6 @@ func (h *Handler) GetMusics(c *gin.Context) {}
 
 func (h *Handler) GetMusic(c *gin.Context) {}
 
-func (h *Handler) UploadMusic(c *gin.Context) {}
-
 func (h *Handler) UpdateMusicMetadata(c *gin.Context) {}
 
 func (h *Handler) DeleteMusics(c *gin.Context) {}

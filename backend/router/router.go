@@ -9,15 +9,16 @@ import (
 	"github.com/walnuts1018/mucaron/backend/config"
 	"github.com/walnuts1018/mucaron/backend/consts"
 	"github.com/walnuts1018/mucaron/backend/router/handler"
+	"github.com/walnuts1018/mucaron/backend/router/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
-func NewRouter(config config.Config, handler handler.Handler, sessionStore sessions.Store) (*gin.Engine, error) {
+func NewRouter(config config.Config, handler handler.Handler, sessionStore sessions.Store, middleware middleware.Middleware) (*gin.Engine, error) {
 	if config.LogLevel != slog.LevelDebug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	r := gin.Default()
+	r := gin.New()
 	r.ContextWithFallback = true
 	r.Use(gin.Recovery())
 	r.Use(sloggin.New(slog.Default()))
@@ -28,7 +29,7 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 	r.GET("/healthz", handler.Health)
 	apiv1 := r.Group("/api/v1")
 	{
-		apiv1.POST("/upload", handler.UploadMusic).Use(checkUserMiddleware())
+		apiv1.POST("/upload", handler.Upload).Use(middleware.CheckUserMiddleware())
 
 		music := apiv1.Group("/music")
 		{

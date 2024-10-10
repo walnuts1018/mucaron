@@ -8,13 +8,13 @@ import (
 )
 
 func (u *Usecase) encode(ctx context.Context, music entity.Music, uploadedFilePath string, audioOnly bool) {
-	path, err := u.encoder.Encode(music.ID, uploadedFilePath, audioOnly)
+	path, err := u.encoder.Encode(music.ID.String(), uploadedFilePath, audioOnly)
 	if err != nil {
-		slog.Error("failed to encode", slog.Any("music_id", music.ID), slog.Any("error", err))
+		slog.Error("failed to encode", slog.String("music_id", music.ID.String()), slog.Any("error", err))
 		return
 	}
-	if err := u.objectStorage.UploadDirectory(ctx, music.ID, path); err != nil {
-		slog.Error("failed to upload directory", slog.Any("music_id", music.ID), slog.Any("error", err))
+	if err := u.objectStorage.UploadDirectory(ctx, music.ID.String(), path); err != nil {
+		slog.Error("failed to upload directory", slog.String("music_id", music.ID.String()), slog.Any("error", err))
 		return
 	}
 }

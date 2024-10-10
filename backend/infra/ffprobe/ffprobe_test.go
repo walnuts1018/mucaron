@@ -62,19 +62,55 @@ func Test_newRawMusicTags(t *testing.T) {
 				DiscTotal:        1,
 				CreationDatetime: synchro.In[tz.AsiaTokyo](time.Date(2020, 6, 18, 11, 30, 22, 0, time.UTC)),
 				Duration:         124*time.Second + 273*time.Millisecond + 197*time.Microsecond,
-				TagList: map[string]string{
-					"album":         "album",
-					"album_artist":  "album_artist",
-					"artist":        "artist",
-					"composer":      "composer",
-					"creation_time": "2020-06-18T11:30:22.000000Z",
-					"disc":          "1/1",
-					"genre":         "genre",
-					"sort_album":    "sort_album",
-					"sort_artist":   "sort_artist",
-					"sort_name":     "sort_name",
-					"title":         "title",
-					"track":         "1/15",
+				TagList: []entity.RawMusicMetadataTag{
+					{
+						Key:   "album",
+						Value: "album",
+					},
+					{
+						Key:   "album_artist",
+						Value: "album_artist",
+					},
+					{
+						Key:   "artist",
+						Value: "artist",
+					},
+					{
+						Key:   "composer",
+						Value: "composer",
+					},
+					{
+						Key:   "creation_time",
+						Value: "2020-06-18T11:30:22.000000Z",
+					},
+					{
+						Key:   "disc",
+						Value: "1/1",
+					},
+					{
+						Key:   "genre",
+						Value: "genre",
+					},
+					{
+						Key:   "sort_album",
+						Value: "sort_album",
+					},
+					{
+						Key:   "sort_artist",
+						Value: "sort_artist",
+					},
+					{
+						Key:   "sort_name",
+						Value: "sort_name",
+					},
+					{
+						Key:   "title",
+						Value: "title",
+					},
+					{
+						Key:   "track",
+						Value: "1/15",
+					},
 				},
 			},
 			wantErr: false,
@@ -107,7 +143,7 @@ func Test_newRawMusicTags(t *testing.T) {
 				DiscTotal:        0,
 				CreationDatetime: synchro.Time[tz.AsiaTokyo]{},
 				Duration:         124*time.Second + 273*time.Millisecond + 197*time.Microsecond,
-				TagList:          map[string]string{},
+				TagList:          []entity.RawMusicMetadataTag{},
 			},
 			wantErr: false,
 		},
@@ -121,48 +157,6 @@ func Test_newRawMusicTags(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("newRawMusicTags() = %#v, want %#v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_toStringMap(t *testing.T) {
-	type args struct {
-		m map[string]any
-	}
-	tests := []struct {
-		name string
-		args args
-		want map[string]string
-	}{
-		{
-			name: "test",
-			args: args{
-				m: map[string]any{
-					"string": "string",
-					"int":    int(100),
-					"float":  float64(3.14159265358979),
-					"bool":   true,
-					"slice":  []string{"slice"},
-					"map":    map[string]string{"key": "value"},
-					"byte":   []byte("byte"),
-				},
-			},
-			want: map[string]string{
-				"string": "string",
-				"int":    "100",
-				"float":  "3.14159265358979",
-				"bool":   "true",
-				"slice":  "[slice]",
-				"map":    "map[key:value]",
-				"byte":   "[98 121 116 101]",
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := toStringMap(tt.args.m); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("toStringMap() = %v, want %v", got, tt.want)
 			}
 		})
 	}

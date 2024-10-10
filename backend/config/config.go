@@ -13,25 +13,26 @@ import (
 )
 
 type Config struct {
-	ServerPort    string     `env:"SERVER_PORT" envDefault:"8080"`
-	ServerURL     string     `env:"SERVER_URL" envDefault:"localhost"`
-	LogLevel      slog.Level `env:"LOG_LEVEL"`
-	MaxUploadSize uint64     `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
-	PSQLDSN       string     `env:"PSQL_DSN" envDefault:"invalid_value"`     // If PSQL_DSN is set, other PSQL_* variables will be ignored
+	ServerPort    string        `env:"SERVER_PORT" envDefault:"8080"`
+	ServerURL     string        `env:"SERVER_URL" envDefault:"localhost"`
+	LogLevel      slog.Level    `env:"LOG_LEVEL"`
+	MaxUploadSize uint64        `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
+	EncodeTimeout time.Duration `env:"ENCODE_TIMEOUT" envDefault:"1h"`
+
+	PSQLDSN string `env:"PSQL_DSN" envDefault:"invalid_value"` // If PSQL_DSN is set, other PSQL_* variables will be ignored
 
 	// ------------------------ MinIO ------------------------
-	MinIOEndpoint      string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`
-	MinIOAccessKey     string `env:"MINIO_ACCESS_KEY,required"`
-	MinIOSecretKey     string `env:"MINIO_SECRET_KEY,required"`
-	MinIOUseSSL        bool   `env:"MINIO_USE_SSL" envDefault:"false"`
-	MinIOBucket        string `env:"MINIO_BUCKET" envDefault:"mucaron"`
-	MinIOPublicBaseURL string `env:"MINIO_PUBLIC_BASE_URL" envDefault:"http://localhost:9000"`
+	MinIOEndpoint  string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`
+	MinIOAccessKey string `env:"MINIO_ACCESS_KEY,required"`
+	MinIOSecretKey string `env:"MINIO_SECRET_KEY,required"`
+	MinIOUseSSL    bool   `env:"MINIO_USE_SSL" envDefault:"false"`
+	MinIOBucket    string `env:"MINIO_BUCKET" envDefault:"mucaron"`
 	// -------------------------------------------------------
 
 	// ------------------------ Redis ------------------------
 	RedisHost     string `env:"REDIS_HOST" envDefault:"localhost"`
 	RedisPort     string `env:"REDIS_PORT" envDefault:"6379"`
-	RedisPassword string `env:"REDIS_PASSWORD" envDefault:""`
+	RedisPassword string `env:"REDIS_PASSWORD,required"`
 	RedisDB       int    `env:"REDIS_DB" envDefault:"0"`
 	// -------------------------------------------------------
 

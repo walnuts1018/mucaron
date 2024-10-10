@@ -41,7 +41,7 @@ func init() {
 
 func TestFFMPEG_CreateArgs(t *testing.T) {
 	f := &FFMPEG{
-		BaseURL:    &url.URL{Scheme: "https", Host: "localhost", Path: "mucaron-test"},
+		baseURL:    &url.URL{Scheme: "https", Host: "localhost", Path: "mucaron-test"},
 		FPS:        30,
 		Preset:     Veryslow,
 		VideoCodec: "libx264",
@@ -169,7 +169,7 @@ func TestFFMPEG_CreateArgs(t *testing.T) {
 
 func TestFFMPEG_Encode(t *testing.T) {
 	f := &FFMPEG{
-		BaseURL:    &url.URL{Scheme: "https", Host: "localhost", Path: "mucaron-test"},
+		baseURL:    &url.URL{Scheme: "https", Host: "localhost", Path: "mucaron-test"},
 		FPS:        30,
 		Preset:     Ultrafast,
 		VideoCodec: "libx264",

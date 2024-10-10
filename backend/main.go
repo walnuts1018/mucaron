@@ -33,10 +33,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	go func() {
-		if err := router.Run(fmt.Sprintf(":%s", cfg.ServerPort)); err != nil {
-			slog.Error(fmt.Sprintf("Failed to run router: %v", err))
-			os.Exit(1)
-		}
-	}()
+	slog.Info("Server is running", slog.String("port", cfg.ServerPort))
+	if err := router.Run(fmt.Sprintf(":%s", cfg.ServerPort)); err != nil {
+		slog.Error(fmt.Sprintf("Failed to run router: %v", err))
+		os.Exit(1)
+	}
 }

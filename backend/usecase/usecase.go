@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/config"
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 )
@@ -17,7 +18,13 @@ type MusicRepository interface {
 	CreateMusic(m entity.Music) error
 }
 type PlaylistRepository interface{}
-type UserRepository interface{}
+type UserRepository interface {
+	GetUserByID(userID uuid.UUID) (entity.User, error)
+	GetUserByIDs(userIDs []uuid.UUID) ([]entity.User, error)
+	CreateUser(user entity.User) error
+	UpdateUser(user entity.User) error
+	DeleteUser(user entity.User) error
+}
 
 type ObjectStorage interface {
 	GetObjectURL(ctx context.Context, objectName string, cacheControl string) (*url.URL, error)

@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
-	"github.com/walnuts1018/mucaron/backend/util/filehash"
+	"github.com/walnuts1018/mucaron/backend/util/hash"
 	"github.com/walnuts1018/mucaron/backend/util/temp"
 )
 
@@ -29,12 +30,12 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 
 	music := raw.ToEntity(user)
 
-	hash, err := filehash.FileHash(tmpfile.File().Name())
+	hash, err := hash.ReaderHash(tmpfile.File())
 	if err != nil {
 		return fmt.Errorf("failed to get file hash: %w", err)
 	}
 
-	music.ID = hash
+	music.FileHash = hash
 
 	if err := u.MusicRepository.CreateMusic(music); err != nil {
 		return fmt.Errorf("failed to create music: %w", err)
@@ -42,11 +43,16 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 
 	go func() {
 		defer tmpfile.Close()
-		
+
+		ctx, cancel := context.WithTimeout(context.Background(), u.cfg.EncodeTimeout)
+		defer cancel()
+
 		u.encodeMutex.Lock()
 		defer u.encodeMutex.Unlock()
 
+		slog.Info("start encoding", slog.String("music_id", music.ID.String()))
 		u.encode(ctx, music, tmpfile.File().Name(), false)
+		slog.Info("finish encoding", slog.String("music_id", music.ID.String()))
 	}()
 
 	return nil

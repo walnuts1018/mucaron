@@ -19,9 +19,8 @@ import (
 const expires = 2 * 24 * time.Hour
 
 type MinIO struct {
-	minioBucket    string
-	minioPublicUrl url.URL
-	client         *minio.Client
+	minioBucket string
+	client      *minio.Client
 }
 
 func NewMinIOClient(cfg config.Config) (*MinIO, error) {
@@ -33,15 +32,9 @@ func NewMinIOClient(cfg config.Config) (*MinIO, error) {
 		return nil, fmt.Errorf("failed to create minio client: %w", err)
 	}
 
-	url, err := url.Parse(cfg.MinIOPublicBaseURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse minio public url: %w", err)
-	}
-
 	return &MinIO{
-		minioBucket:    cfg.MinIOBucket,
-		minioPublicUrl: *url,
-		client:         minioClient,
+		minioBucket: cfg.MinIOBucket,
+		client:      minioClient,
 	}, nil
 }
 

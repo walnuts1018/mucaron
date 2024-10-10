@@ -13,8 +13,10 @@ import (
 	"github.com/walnuts1018/mucaron/backend/config"
 )
 
+var baseURL = url.URL{Scheme: "https", Host: "to-be-replaced.example.com"}
+
 type FFMPEG struct {
-	BaseURL          *url.URL
+	baseURL          *url.URL
 	FPS              int
 	Preset           Preset
 	VideoCodec       string
@@ -22,14 +24,8 @@ type FFMPEG struct {
 }
 
 func NewFFMPEG(cfg config.Config) (*FFMPEG, error) {
-	url, err := url.Parse(cfg.MinIOPublicBaseURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse url: %v", err)
-	}
-	url = url.JoinPath(cfg.MinIOBucket)
-
 	return &FFMPEG{
-		BaseURL:    url,
+		baseURL:    &baseURL,
 		FPS:        30,
 		Preset:     Veryslow,
 		VideoCodec: "libx264",
@@ -80,7 +76,7 @@ func (f *FFMPEG) createArgs(id string, inputFileName string, audioOnly bool) ([]
 		"-hls_time", "4",
 		"-hls_playlist_type", "vod",
 		"-hls_flags", "independent_segments",
-		"-hls_base_url", fmt.Sprintf("%s/", f.BaseURL.String()),
+		"-hls_base_url", fmt.Sprintf("%s/", f.baseURL.String()),
 		"-master_pl_name", "primary.m3u8",
 		"-hls_segment_filename", fmt.Sprintf("%s/stream_%%v/s%%06d.ts", id),
 		"-strftime_mkdir", "1",

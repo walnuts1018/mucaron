@@ -1,12 +1,13 @@
 services:
   backend:
-    image: golang:1.23-bookworm
-    working_dir: /app/backend
-    command: go run github.com/air-verse/air
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.local
+    working_dir: /app
     tty: true
     volumes:
       - source: ./backend
-        target: /app/backend
+        target: /app
         type: bind
     ports:
       - "8080:8080"
@@ -19,9 +20,12 @@ services:
       PSQL_SSLMODE: disable
       MINIO_ACCESS_KEY: mockaccesskey
       MINIO_SECRET_KEY: mocksecretkey
-
+      REDIS_HOST: redis
+      REDIS_PASSWORD: "redispassword"
     depends_on:
       - postgres
+      - minio
+      - redis
   frontend:
     image: node:20
     working_dir: /app
@@ -55,6 +59,14 @@ services:
       MINIO_ACCESS_KEY: mockaccesskey
       MINIO_SECRET_KEY: mocksecretkey
     command: server /export --console-address ":9001"
+  redis:
+    image: bitnami/redis:7.4
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: "redispassword"
+    volumes:
+      - redis_data:/bitnami/redis/data
 networks:
   default: {}
 
@@ -64,4 +76,6 @@ volumes:
   minio_data:
     driver: local
   minio_config:
+    driver: local
+  redis_data:
     driver: local

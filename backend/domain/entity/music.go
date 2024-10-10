@@ -8,7 +8,7 @@ import (
 )
 
 type Music struct {
-	gormmodel.HashModel
+	gormmodel.UUIDModel
 	OwnerID          uuid.UUID
 	Owner            User `gorm:"foreignKey:OwnerID"`
 	Name             string
@@ -31,7 +31,10 @@ type Music struct {
 	RawMetaData RawMusicMetadata
 
 	// ----- status -----
-	Status MusicStatus
+	Status    MusicStatus
+	PlayCount int64
+
+	FileHash string `gorm:"uniqueIndex"`
 }
 
 type MusicStatus string
