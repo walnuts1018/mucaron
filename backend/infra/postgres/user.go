@@ -49,11 +49,11 @@ func (p *PostgresClient) GetUserByID(userID uuid.UUID) (entity.User, error) {
 	return u, nil
 }
 
-func (p *PostgresClient) GetHashedPasswordByUserID(userID uuid.UUID) (entity.HashedPassword, error) {
+func (p *PostgresClient) GetUserByName(userName string) (entity.User, error) {
 	var u entity.User
-	result := p.db.Select("hashed_password").First(&u, userID)
+	result := p.db.Where("user_name = ?", userName).First(&u)
 	if result.Error != nil {
-		return "", fmt.Errorf("failed to get user by id: %w", result.Error)
+		return entity.User{}, fmt.Errorf("failed to get user by name: %w", result.Error)
 	}
-	return u.HashedPassword, nil
+	return u, nil
 }

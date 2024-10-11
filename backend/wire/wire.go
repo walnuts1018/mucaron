@@ -14,7 +14,6 @@ import (
 	"github.com/walnuts1018/mucaron/backend/infra/redis"
 	"github.com/walnuts1018/mucaron/backend/router"
 	"github.com/walnuts1018/mucaron/backend/router/handler"
-	"github.com/walnuts1018/mucaron/backend/router/middleware"
 	"github.com/walnuts1018/mucaron/backend/usecase"
 )
 
@@ -30,7 +29,6 @@ func CreateRouter(
 		handler.NewHandler,
 		redis.NewSessionStore,
 		router.NewRouter,
-		middleware.NewMiddleware,
 	)
 
 	return &gin.Engine{}, nil

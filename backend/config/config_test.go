@@ -7,11 +7,13 @@ import (
 	"testing"
 
 	"dario.cat/mergo"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var requiredEnvs = map[string]string{
 	"MINIO_ACCESS_KEY": "test",
 	"MINIO_SECRET_KEY": "test",
+	"REDIS_PASSWORD":   "test",
 }
 
 func TestLoad(t *testing.T) {
@@ -45,10 +47,12 @@ func TestLoad(t *testing.T) {
 		{
 			name: "check custom type",
 			envs: map[string]string{
-				"LOG_LEVEL": "debug",
+				"LOG_LEVEL":      "debug",
+				"SESSION_SECRET": "testtesttesttesttesttesttesttest",
 			},
 			want: Config{
-				LogLevel: slog.LevelDebug,
+				LogLevel:      slog.LevelDebug,
+				SessionSecret: "testtesttesttesttesttesttesttest",
 			},
 			wantErr: false,
 		},
@@ -165,6 +169,51 @@ func Test_equal(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("equal() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_parseSessionSecret(t *testing.T) {
+	type args struct {
+		v string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "normal 32byte",
+			args: args{
+				v: "testtesttesttesttesttesttesttest",
+			},
+			want:    "testtesttesttesttesttesttesttest",
+			wantErr: false,
+		},
+		{
+			name: "random",
+			args: args{
+				v: "",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := parseSessionSecret(tt.args.v)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseSessionSecret() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.want != "" {
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("parseSessionSecret() = %v, want %v", got, tt.want)
+				}
+			} else {
+				t.Logf("parseSessionSecret() = %v", got)
 			}
 		})
 	}

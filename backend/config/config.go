@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"reflect"
@@ -19,7 +20,7 @@ type Config struct {
 	MaxUploadSize uint64        `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
 	EncodeTimeout time.Duration `env:"ENCODE_TIMEOUT" envDefault:"1h"`
 
-	PSQLDSN string `env:"PSQL_DSN" envDefault:"invalid_value"` // If PSQL_DSN is set, other PSQL_* variables will be ignored
+	PSQLDSN string `env:"PSQL_DSN" envDefault:""` // If PSQL_DSN is set, other PSQL_* variables will be ignored
 
 	// ------------------------ MinIO ------------------------
 	MinIOEndpoint  string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`
@@ -36,7 +37,7 @@ type Config struct {
 	RedisDB       int    `env:"REDIS_DB" envDefault:"0"`
 	// -------------------------------------------------------
 
-	SessionSecret SessionSecret `env:"SESSION_SECRET"`
+	SessionSecret string `env:"SESSION_SECRET" envDefault:""`
 }
 
 func Load() (Config, error) {
@@ -44,19 +45,40 @@ func Load() (Config, error) {
 	var parseErr error
 	if err := env.ParseWithOptions(&cfg, env.Options{
 		FuncMap: map[reflect.Type]env.ParserFunc{
-			reflect.TypeOf(slog.Level(0)):     returnAny(ParseLogLevel),
-			reflect.TypeOf(time.Duration(0)):  returnAny(time.ParseDuration),
-			reflect.TypeOf(SessionSecret("")): returnAny(ParseSessionSecret),
+			reflect.TypeOf(slog.Level(0)):    returnAny(ParseLogLevel),
+			reflect.TypeOf(time.Duration(0)): returnAny(time.ParseDuration),
 		},
 		OnSet: func(tag string, value any, isDefault bool) {
-			if !isDefault {
-				return
+			switch tag {
+			case "PSQL_DSN":
+				if isDefault {
+					dsn, err := parsePSQLSettings()
+					if err != nil {
+						parseErr = err
+						return
+					}
+					cfg.PSQLDSN = dsn
+				} else {
+					dsn, ok := value.(string)
+					if !ok {
+						parseErr = errors.New("PSQL_DSN must be string")
+						return
+					}
+					cfg.PSQLDSN = dsn
+				}
+			case "SESSION_SECRET":
+				str, ok := value.(string)
+				if !ok {
+					parseErr = errors.New("SESSION_SECRET must be string")
+					return
+				}
+				v, err := parseSessionSecret(str)
+				if err != nil {
+					parseErr = err
+					return
+				}
+				cfg.SessionSecret = v
 			}
-			dsn, err := parsePSQLSettings()
-			if err != nil {
-				parseErr = err
-			}
-			cfg.PSQLDSN = dsn
 		},
 	}); err != nil {
 		return Config{}, err
@@ -112,24 +134,22 @@ func parsePSQLSettings() (string, error) {
 		nil
 }
 
-type SessionSecret string
-
-func ParseSessionSecret(v string) (SessionSecret, error) {
-	if len(v) == 0 {
-		s, err := random.String(32, random.AlphanumericSymbols)
+func parseSessionSecret(v string) (string, error) {
+	if v == "" {
+		str, err := random.String(32, random.Alphanumeric)
 		if err != nil {
 			return "", err
 		}
-		return SessionSecret(s), nil
-	}
-
-	allowedLen := []int{16, 24, 32}
-	for _, l := range allowedLen {
-		if len(v) == l {
-			return SessionSecret(v), nil
+		return str, nil
+	} else {
+		allowedLen := []int{16, 24, 32}
+		for _, l := range allowedLen {
+			if len(v) == l {
+				return v, nil
+			}
 		}
+		return "", ErrInvalidSessionSecretLength
 	}
-	return "", ErrInvalidSessionSecretLength
 }
 
-var ErrInvalidSessionSecretLength = fmt.Errorf("session secret must be 16, 24, or 32 bytes")
+var ErrInvalidSessionSecretLength = errors.New("session secret must be 16, 24, or 32 bytes")

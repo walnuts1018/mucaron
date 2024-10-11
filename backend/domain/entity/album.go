@@ -11,5 +11,5 @@ type Album struct {
 	Owner    User `gorm:"foreignKey:OwnerID"`
 	Name     string
 	SortName string
-	Artists  []Artist `gorm:"many2many:album_artists;"`
+	Musics   []Music `gorm:"many2many:album_musics;"`
 }

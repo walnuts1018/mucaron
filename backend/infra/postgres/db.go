@@ -14,7 +14,9 @@ type PostgresClient struct {
 }
 
 func NewPostgres(cfg config.Config) (*PostgresClient, error) {
-	db, err := gorm.Open(postgresdriver.Open(cfg.PSQLDSN), &gorm.Config{})
+	db, err := gorm.Open(postgresdriver.Open(cfg.PSQLDSN), &gorm.Config{
+		Logger: NewLogger(cfg),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %v", err)
 	}

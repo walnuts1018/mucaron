@@ -9,9 +9,14 @@ services:
       - source: ./backend
         target: /app
         type: bind
+      - target: /go/pkg/mod
+        type: tmpfs
+      - target: /root/.cache/go-build
+        type: tmpfs
     ports:
       - "8080:8080"
     environment:
+      LOG_LEVEL: debug
       PSQL_HOST: postgres
       PSQL_PORT: 5432
       PSQL_DATABASE: mucaron
@@ -22,6 +27,13 @@ services:
       MINIO_SECRET_KEY: mocksecretkey
       REDIS_HOST: redis
       REDIS_PASSWORD: "redispassword"
+      SESSION_SECRET: "mock-session-secret-----"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     depends_on:
       - postgres
       - minio

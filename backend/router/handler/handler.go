@@ -1,13 +1,25 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
+	"log/slog"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/config"
+	"github.com/walnuts1018/mucaron/backend/domain"
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
-	"github.com/walnuts1018/mucaron/backend/router/middleware"
 	"github.com/walnuts1018/mucaron/backend/usecase"
+)
+
+const (
+	UserIDSessionKey = "user_id"
+)
+
+var (
+	ErrNeedLogin = errors.New("need login")
 )
 
 type Handler struct {
@@ -22,16 +34,35 @@ func NewHandler(config config.Config, usecase *usecase.Usecase) (Handler, error)
 	}, nil
 }
 
-func getUser(c *gin.Context) (entity.User, error) {
-	user, ok := c.Get(middleware.UserKey)
-	if !ok {
-		return entity.User{}, fmt.Errorf("failed to get user")
+func (h *Handler) getUser(c *gin.Context) (entity.User, error) {
+	session := sessions.Default(c)
+	userIDStr, ok := session.Get(UserIDSessionKey).(string)
+	if !ok || userIDStr == "" {
+		slog.Info("user not found in session",
+			slog.String("path", c.Request.URL.Path),
+			slog.String("method", c.Request.Method),
+			slog.String("client_ip", c.ClientIP()),
+		)
+		return entity.User{}, ErrNeedLogin
 	}
 
-	u, ok := user.(entity.User)
-	if !ok {
-		return entity.User{}, fmt.Errorf("failed to assert user")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return entity.User{}, err
 	}
 
-	return u, nil
+	user, err := h.usecase.GetUserByID(userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			slog.Info("failed to get user by id",
+				slog.String("path", c.Request.URL.Path),
+				slog.String("method", c.Request.Method),
+				slog.String("client_ip", c.ClientIP()),
+			)
+			return entity.User{}, ErrNeedLogin
+		}
+		return entity.User{}, fmt.Errorf("failed to get user by id: %w", err)
+	}
+
+	return user, nil
 }

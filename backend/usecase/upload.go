@@ -28,7 +28,7 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 		return fmt.Errorf("failed to get metadata: %w", err)
 	}
 
-	music := raw.ToEntity(user)
+	music, album, artist, genre := raw.ToEntity(user)
 
 	hash, err := hash.ReaderHash(tmpfile.File())
 	if err != nil {

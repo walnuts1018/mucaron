@@ -36,28 +36,17 @@ type RawMusicMetadata struct {
 	TagList []RawMusicMetadataTag
 }
 
-func (r RawMusicMetadata) ToEntity(Owner User) Music {
-	artist := Artist{}
+func (r RawMusicMetadata) ToEntity(Owner User) (music Music, album *Album, artist *Artist, genre *Genre) {
 	if r.Artist != "" {
-		artist = Artist{
+		artist = &Artist{
 			Owner:    Owner,
 			Name:     r.Artist,
 			SortName: r.SortArtist,
 		}
 	}
 
-	album := Album{}
-	if r.Album != "" {
-		album = Album{
-			Owner:    Owner,
-			Name:     r.Album,
-			SortName: r.SortAlbum,
-		}
-	}
-
-	genre := Genre{}
 	if r.Genre != "" {
-		genre = Genre{
+		genre = &Genre{
 			Owner: Owner,
 			Name:  r.Genre,
 		}
@@ -70,19 +59,25 @@ func (r RawMusicMetadata) ToEntity(Owner User) Music {
 		musicTitle = r.Title
 	}
 
-	music := Music{
+	music = Music{
+		Owner:            Owner,
 		Name:             musicTitle,
 		SortName:         r.SortTitle,
-		Album:            album,
 		AlbumTrackNumber: int64(r.TrackNumber),
-		Artists:          []Artist{artist},
 		Duration:         r.Duration,
-		Genre:            genre,
 		RawMetaData:      r,
 		Status:           MetadataParsed,
 	}
 
-	return music
+	if r.Album != "" {
+		album = &Album{
+			Owner:    Owner,
+			Name:     r.Album,
+			SortName: r.SortAlbum,
+		}
+	}
+
+	return
 }
 
 type RawMusicMetadataTag struct {

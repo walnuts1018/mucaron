@@ -13,3 +13,13 @@ type UUIDModel struct {
 	UpdatedAt synchro.Time[tz.AsiaTokyo]
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
+
+func NewUUIDModel() (UUIDModel, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return UUIDModel{}, err
+	}
+	return UUIDModel{
+		ID: id,
+	}, nil
+}

@@ -24,6 +24,7 @@ type UserRepository interface {
 	CreateUser(user entity.User) error
 	UpdateUser(user entity.User) error
 	DeleteUser(user entity.User) error
+	GetUserByName(userName string) (entity.User, error)
 }
 
 type ObjectStorage interface {

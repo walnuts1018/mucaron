@@ -13,8 +13,6 @@ type Music struct {
 	Owner            User `gorm:"foreignKey:OwnerID"`
 	Name             string
 	SortName         string
-	AlbumID          uuid.UUID
-	Album            Album
 	AlbumTrackNumber int64
 	Artists          []Artist `gorm:"many2many:music_artists;"`
 	Score            int64

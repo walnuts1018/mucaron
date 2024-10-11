@@ -1,17 +1,15 @@
-FROM golang AS builder
-ENV ROOT=/app
-WORKDIR ${ROOT}
+FROM golang
+WORKDIR /app
+
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get -y update && apt-get install -y ffmpeg
 
 RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
     --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
-    --mount=type=bind,source=go.sum,target=go.sum \
-    --mount=type=bind,source=go.mod,target=go.mod \
-    go mod download -x
+    go install github.com/air-verse/air@latest
 
 COPY . .
 
 EXPOSE 8080
-CMD ["go", "run", "github.com/air-verse/air"]
+CMD ["air", "-c", ".air.toml"]
