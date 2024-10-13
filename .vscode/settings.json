@@ -6,6 +6,9 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true, // for prettier
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true // for eslint
+    "source.fixAll.eslint": "explicit" // for eslint
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
   }
 }
