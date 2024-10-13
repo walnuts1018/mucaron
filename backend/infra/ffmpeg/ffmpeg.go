@@ -18,16 +18,13 @@ import (
 var baseURL = url.URL{Scheme: "https", Host: "to-be-replaced.example.com"}
 var OutDirPrefix = "mucaron-outdir"
 
-const (
-	LogFileDir = "/var/log/mucaron/ffmpeg"
-)
-
 type FFMPEG struct {
 	baseURL          *url.URL
 	FPS              int
 	Preset           Preset
 	VideoCodec       string
 	VideoQualityKeys []VideoQualityKey
+	logFileDir       string
 }
 
 func NewFFMPEG(cfg config.Config) (*FFMPEG, error) {
@@ -41,6 +38,7 @@ func NewFFMPEG(cfg config.Config) (*FFMPEG, error) {
 			VideoQualityKey720P,
 			VideoQualityKey1080P,
 		},
+		logFileDir: filepath.Join(cfg.LogDir, "ffmpeg"),
 	}, nil
 }
 
@@ -131,7 +129,7 @@ func (f *FFMPEG) Encode(id string, path string, audioOnly bool) (string, error) 
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
-	logfile, err := fileutil.CreateFileRecursive(filepath.Join(LogFileDir, id+".log"))
+	logfile, err := fileutil.CreateFileRecursive(filepath.Join(f.logFileDir, id+".log"))
 	if err != nil {
 		return "", fmt.Errorf("failed to create log file: %w", err)
 	}

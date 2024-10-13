@@ -20,6 +20,7 @@ type Config struct {
 	ServerEndpoint string        `env:"SERVER_ENDPOINT" envDefault:"http://localhost:80"`
 	LogLevel       slog.Level    `env:"LOG_LEVEL"`
 	LogType        LogType       `env:"LOG_TYPE" envDefault:"json"`
+	LogDir         string        `env:"LOG_DIR" envDefault:"/var/log/mucaron"`
 	MaxUploadSize  uint64        `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
 	EncodeTimeout  time.Duration `env:"ENCODE_TIMEOUT" envDefault:"1h"`
 

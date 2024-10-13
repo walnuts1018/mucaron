@@ -49,7 +49,9 @@ func TestFFMPEG_CreateArgs(t *testing.T) {
 			VideoQualityKey360P,
 			VideoQualityKey720P,
 			VideoQualityKey1080P,
-		}}
+		},
+		logFileDir: "./log",
+	}
 
 	type args struct {
 		id            string
@@ -177,7 +179,9 @@ func TestFFMPEG_Encode(t *testing.T) {
 		VideoCodec: "libx264",
 		VideoQualityKeys: []VideoQualityKey{
 			VideoQualityKey360P,
-		}}
+		},
+		logFileDir: "./log",
+	}
 
 	type args struct {
 		id        string
