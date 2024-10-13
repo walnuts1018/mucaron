@@ -2,6 +2,7 @@ name: Back Image Build
 on:
   push:
     paths:
+      - ".github/workflows/docker.yaml"
       - "backend/**"
   workflow_dispatch:
 
