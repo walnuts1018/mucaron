@@ -12,7 +12,8 @@ class _VideoWidgetState extends State<VideoWidget> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(''));
+    _controller = VideoPlayerController.networkUrl(Uri.parse(
+        'http://localhost:9000/mucaron/01928623-ad3c-7c16-a77c-f5d38ebb6616/primary.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=mockaccesskey%2F20241013%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241013T204615Z&X-Amz-Expires=172800&X-Amz-SignedHeaders=host&response-content-disposition=attachment&X-Amz-Signature=0cd3a8fcdb4046dd6b1a8079d96435309c8dec1568dd4e4c8195a9eae6257240'));
 
     _controller.addListener(() {
       setState(() {});
