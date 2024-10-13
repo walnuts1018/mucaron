@@ -1,11 +1,28 @@
 package gormmodel
 
 import (
+	"database/sql"
+	"database/sql/driver"
+
 	"github.com/Code-Hex/synchro"
 	"github.com/Code-Hex/synchro/tz"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
+
+type DeletedAt[T synchro.TimeZone] sql.Null[synchro.Time[T]]
+
+func (n *DeletedAt[T]) Scan(value interface{}) error {
+	return (*sql.Null[synchro.Time[T]])(n).Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (n DeletedAt[T]) Value() (driver.Value, error) {
+	if !n.Valid {
+		return nil, nil
+	}
+	return n.V, nil
+}
 
 type UUIDModel struct {
 	ID        uuid.UUID `gorm:"primarykey;type:uuid;default:gen_random_uuid()"`

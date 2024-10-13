@@ -34,12 +34,12 @@ var (
 func TestMain(m *testing.M) {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to create pool: %v", err))
+		slog.Error("failed to create pool", slog.Any("error", err))
 		os.Exit(1)
 	}
 
 	if err := pool.Client.Ping(); err != nil {
-		slog.Error(fmt.Sprintf("failed to connect to Docker: %v", err))
+		slog.Error("failed to connect to Docker", slog.Any("error", err))
 		os.Exit(1)
 	}
 
@@ -61,7 +61,7 @@ func TestMain(m *testing.M) {
 		},
 	)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to create pool: %v", err))
+		slog.Error("failed to create pool", slog.Any("error", err))
 		os.Exit(1)
 	}
 
@@ -77,7 +77,7 @@ func TestMain(m *testing.M) {
 			MinIOBucket:    bucketName,
 		})
 		if err != nil {
-			slog.Error(fmt.Sprintf("failed to create minio client: %v", err))
+			slog.Error("failed to create minio client", slog.Any("error", err))
 			os.Exit(1)
 		}
 
@@ -95,26 +95,26 @@ func TestMain(m *testing.M) {
 		}
 
 	}); err != nil {
-		slog.Error(fmt.Sprintf("failed to connect to minio: %v", err))
+		slog.Error("failed to retry", slog.Any("error", err))
 		os.Exit(1)
 	}
 
 	ctx := context.Background()
 	bucketExist, err := minioClient.client.BucketExists(ctx, bucketName)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to check bucket: %v", err))
+		slog.Error("failed to check bucket", slog.Any("error", err))
 		os.Exit(1)
 	}
 	if !bucketExist {
 		if err := minioClient.client.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{}); err != nil {
-			slog.Error(fmt.Sprintf("failed to create bucket: %v", err))
+			slog.Error("failed to create bucket", slog.Any("error", err))
 			os.Exit(1)
 		}
 	}
 
 	defer func() {
 		if err := pool.Purge(resource); err != nil {
-			slog.Error(fmt.Sprintf("failed to purge resources: %v", err))
+			slog.Error("failed to purge resources", slog.Any("error", err))
 			os.Exit(1)
 		}
 

@@ -36,12 +36,7 @@ func CreateRouter(
 
 var postgresSet = wire.NewSet(
 	postgres.NewPostgres,
-	wire.Bind(new(usecase.AlbumRepository), new(*postgres.PostgresClient)),
-	wire.Bind(new(usecase.ArtistRepository), new(*postgres.PostgresClient)),
-	wire.Bind(new(usecase.GenreRepository), new(*postgres.PostgresClient)),
-	wire.Bind(new(usecase.MusicRepository), new(*postgres.PostgresClient)),
-	wire.Bind(new(usecase.PlaylistRepository), new(*postgres.PostgresClient)),
-	wire.Bind(new(usecase.UserRepository), new(*postgres.PostgresClient)),
+	wire.Bind(new(usecase.EntityRepository), new(*postgres.PostgresClient)),
 )
 
 var ffmpegSet = wire.NewSet(

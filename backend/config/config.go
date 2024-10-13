@@ -13,10 +13,13 @@ import (
 	"github.com/walnuts1018/mucaron/backend/util/random"
 )
 
+var ErrInvalidSessionSecretLength = errors.New("session secret must be 16, 24, or 32 bytes")
+
 type Config struct {
 	ServerPort    string        `env:"SERVER_PORT" envDefault:"8080"`
 	ServerURL     string        `env:"SERVER_URL" envDefault:"localhost"`
 	LogLevel      slog.Level    `env:"LOG_LEVEL"`
+	LogType       LogType       `env:"LOG_TYPE" envDefault:"json"`
 	MaxUploadSize uint64        `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
 	EncodeTimeout time.Duration `env:"ENCODE_TIMEOUT" envDefault:"1h"`
 
@@ -47,6 +50,7 @@ func Load() (Config, error) {
 		FuncMap: map[reflect.Type]env.ParserFunc{
 			reflect.TypeOf(slog.Level(0)):    returnAny(ParseLogLevel),
 			reflect.TypeOf(time.Duration(0)): returnAny(time.ParseDuration),
+			reflect.TypeOf(LogType("")):      returnAny(ParseLogType),
 		},
 		OnSet: func(tag string, value any, isDefault bool) {
 			switch tag {
@@ -152,4 +156,21 @@ func parseSessionSecret(v string) (string, error) {
 	}
 }
 
-var ErrInvalidSessionSecretLength = errors.New("session secret must be 16, 24, or 32 bytes")
+type LogType string
+
+const (
+	LogTypeJSON LogType = "json"
+	LogTypeText LogType = "text"
+)
+
+func ParseLogType(v string) (LogType, error) {
+	switch strings.ToLower(v) {
+	case "json":
+		return LogTypeJSON, nil
+	case "text":
+		return LogTypeText, nil
+	default:
+		slog.Warn("Invalid log type, use default type: json")
+		return LogTypeJSON, nil
+	}
+}

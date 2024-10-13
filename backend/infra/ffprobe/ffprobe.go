@@ -30,7 +30,6 @@ func (p FFProbe) GetMetadata(ctx context.Context, path string) (entity.RawMusicM
 
 func newRawMusicMetadata(data *ffprobe.ProbeData) (entity.RawMusicMetadata, error) {
 	var m entity.RawMusicMetadata
-	m.FileName = data.Format.Filename
 	m.Title = toString(data.Format.TagList, "title")
 	m.SortTitle = toString(data.Format.TagList, "sort_name")
 	m.Artist = toString(data.Format.TagList, "artist")

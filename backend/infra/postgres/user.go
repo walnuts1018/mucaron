@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
+	"gorm.io/gorm/clause"
 )
 
 func (p *PostgresClient) CreateUser(u entity.User) error {
@@ -24,7 +25,7 @@ func (p *PostgresClient) UpdateUser(u entity.User) error {
 }
 
 func (p *PostgresClient) DeleteUser(u entity.User) error {
-	result := p.db.Delete(&u)
+	result := p.db.Select(clause.Associations).Delete(&u)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete: %w", result.Error)
 	}

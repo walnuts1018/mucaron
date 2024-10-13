@@ -9,20 +9,20 @@ import (
 
 type Music struct {
 	gormmodel.UUIDModel
-	OwnerID          uuid.UUID
-	Owner            User `gorm:"foreignKey:OwnerID"`
+	OwnerID          uuid.UUID `gorm:"index:idx_musics_file_hash,unique"`
+	Owner            User      `gorm:"foreignKey:OwnerID;"`
 	Name             string
-	SortName         string
-	AlbumTrackNumber int64
+	SortName         *string
+	AlbumTrackNumber *int64
 	Artists          []Artist `gorm:"many2many:music_artists;"`
 	Score            int64
 	Duration         time.Duration
-	GenreID          uuid.UUID
-	Genre            Genre
+	GenreID          *uuid.UUID
+	Genre            *Genre
 
 	// ----- cover info -----
 	IsCover         bool
-	OriginalMusicID uuid.UUID
+	OriginalMusicID *uuid.UUID
 	// ----------------------
 
 	// ----- raw data -----
@@ -32,7 +32,7 @@ type Music struct {
 	Status    MusicStatus
 	PlayCount int64
 
-	FileHash string `gorm:"uniqueIndex"`
+	FileHash string `gorm:"index:idx_musics_file_hash,unique"`
 }
 
 type MusicStatus string

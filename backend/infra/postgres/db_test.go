@@ -11,31 +11,39 @@ import (
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/walnuts1018/mucaron/backend/config"
+	"github.com/walnuts1018/mucaron/backend/domain/logger"
 )
 
 const (
 	user     = "postgres"
 	password = "postgres"
+	dbname   = "mucaron_test"
 )
 
 var p *PostgresClient
 
 func TestMain(m *testing.M) {
+	if err := setupTest(m); err != nil {
+		slog.Error("failed to setup test", slog.Any("error", err))
+		os.Exit(1)
+	}
+}
+
+func setupTest(m *testing.M) error {
+	logger.CreateAndSetLogger(slog.LevelDebug, config.LogTypeText)
+
 	pool, err := dockertest.NewPool("")
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to create pool: %v", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to create pool: %w", err)
 	}
 
 	if err := pool.Client.Ping(); err != nil {
-		slog.Error(fmt.Sprintf("failed to connect to Docker: %v", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to connect to Docker: %w", err)
 	}
 
 	currentDir, err := os.Getwd()
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to get current directory: %v", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to get current directory: %w", err)
 	}
 
 	initPath := filepath.Join(currentDir, "..", "..", "..", "psql", "init_test")
@@ -60,19 +68,23 @@ func TestMain(m *testing.M) {
 		},
 	)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to create pool: %v", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to create pool: %w", err)
 	}
+	defer func() {
+		if err := pool.Purge(resource); err != nil {
+			slog.Error("failed to purge resources", slog.Any("error", err))
+		}
+	}()
 
 	host, port, err := net.SplitHostPort(resource.GetHostPort("5432/tcp"))
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to split host and port: %v", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to split host and port: %w", err)
 	}
 
 	if err := pool.Retry(func() error {
 		cfg := config.Config{
-			PSQLDSN: fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=%s", host, port, user, password, "mucaron_test", "disable", "Asia/Tokyo"),
+			LogLevel: slog.LevelDebug,
+			PSQLDSN:  fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=%s", host, port, user, password, dbname, "disable", "Asia/Tokyo"),
 		}
 
 		var err error
@@ -83,17 +95,13 @@ func TestMain(m *testing.M) {
 
 		return nil
 	}); err != nil {
-		slog.Error(fmt.Sprintf("failed to connect to database: %v", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	defer func() {
-		if err := pool.Purge(resource); err != nil {
-			slog.Error(fmt.Sprintf("failed to purge resources: %v", err))
-			os.Exit(1)
-		}
+	code := m.Run()
+	if code != 0 {
+		return fmt.Errorf("test failed: %d", code)
+	}
 
-	}()
-
-	m.Run()
+	return nil
 }

@@ -19,23 +19,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger := slog.New(logger.NewTraceHandler(
-		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level:     cfg.LogLevel,
-			AddSource: cfg.LogLevel == slog.LevelDebug,
-		}),
-	))
-	slog.SetDefault(logger)
+	logger.CreateAndSetLogger(cfg.LogLevel, cfg.LogType)
 
 	router, err := wire.CreateRouter(cfg)
 	if err != nil {
-		slog.Error(fmt.Sprintf("Failed to create router: %v", err))
+		slog.Error("Failed to create router", slog.Any("error", err))
 		os.Exit(1)
 	}
 
 	slog.Info("Server is running", slog.String("port", cfg.ServerPort))
 	if err := router.Run(fmt.Sprintf(":%s", cfg.ServerPort)); err != nil {
-		slog.Error(fmt.Sprintf("Failed to run router: %v", err))
+		slog.Error("Failed to run server", slog.Any("error", err))
 		os.Exit(1)
 	}
 }

@@ -13,6 +13,8 @@ type PostgresClient struct {
 	db *gorm.DB
 }
 
+var Entities = []any{&entity.Album{}, &entity.Artist{}, &entity.Genre{}, &entity.Music{}, &entity.Playlist{}, &entity.User{}, &entity.RawMusicMetadata{}, &entity.RawMusicMetadataTag{}}
+
 func NewPostgres(cfg config.Config) (*PostgresClient, error) {
 	db, err := gorm.Open(postgresdriver.Open(cfg.PSQLDSN), &gorm.Config{
 		Logger: NewLogger(cfg),
@@ -25,7 +27,7 @@ func NewPostgres(cfg config.Config) (*PostgresClient, error) {
 		db: db,
 	}
 
-	if err := c.db.AutoMigrate(&entity.Album{}, &entity.Artist{}, &entity.Genre{}, &entity.Music{}, &entity.Playlist{}, &entity.User{}); err != nil {
+	if err := c.db.AutoMigrate(Entities...); err != nil {
 		return nil, fmt.Errorf("failed to automigrate: %v", err)
 	}
 

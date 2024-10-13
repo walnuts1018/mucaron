@@ -8,12 +8,7 @@ import (
 	"github.com/walnuts1018/mucaron/backend/usecase"
 )
 
-var _ usecase.AlbumRepository = &postgres.PostgresClient{}
-var _ usecase.ArtistRepository = &postgres.PostgresClient{}
-var _ usecase.GenreRepository = &postgres.PostgresClient{}
-var _ usecase.MusicRepository = &postgres.PostgresClient{}
-var _ usecase.PlaylistRepository = &postgres.PostgresClient{}
-var _ usecase.UserRepository = &postgres.PostgresClient{}
+var _ usecase.EntityRepository = &postgres.PostgresClient{}
 
 var _ usecase.Encoder = &ffmpeg.FFMPEG{}
 

@@ -46,7 +46,6 @@ func Test_newRawMusicTags(t *testing.T) {
 				},
 			},
 			want: entity.RawMusicMetadata{
-				FileName:         "filename",
 				Title:            "title",
 				SortTitle:        "sort_name",
 				Artist:           "artist",
@@ -127,7 +126,6 @@ func Test_newRawMusicTags(t *testing.T) {
 				},
 			},
 			want: entity.RawMusicMetadata{
-				FileName:         "filename",
 				Title:            "",
 				SortTitle:        "",
 				Artist:           "",

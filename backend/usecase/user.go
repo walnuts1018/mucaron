@@ -16,15 +16,15 @@ var (
 )
 
 func (u *Usecase) GetUserByID(id uuid.UUID) (entity.User, error) {
-	return u.userRepository.GetUserByID(id)
+	return u.entityRepository.GetUserByID(id)
 }
 
 func (u *Usecase) GetUserByIDs(ids []uuid.UUID) ([]entity.User, error) {
-	return u.userRepository.GetUserByIDs(ids)
+	return u.entityRepository.GetUserByIDs(ids)
 }
 
 func (u *Usecase) Login(userName string, inputPass entity.RawPassword) (entity.User, error) {
-	user, err := u.userRepository.GetUserByName(userName)
+	user, err := u.entityRepository.GetUserByName(userName)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return entity.User{}, ErrUserNotFound
@@ -59,7 +59,7 @@ func (u *Usecase) CreateUser(userName string, inputPass entity.RawPassword) (ent
 		return entity.User{}, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	if err := u.userRepository.CreateUser(user); err != nil {
+	if err := u.entityRepository.CreateUser(user); err != nil {
 		return entity.User{}, fmt.Errorf("failed to create user: %w", err)
 	}
 
@@ -67,7 +67,7 @@ func (u *Usecase) CreateUser(userName string, inputPass entity.RawPassword) (ent
 }
 
 func (u *Usecase) IsValidUserName(userName string) (bool, error) {
-	_, err := u.userRepository.GetUserByName(userName)
+	_, err := u.entityRepository.GetUserByName(userName)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return true, nil

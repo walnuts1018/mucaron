@@ -1,5 +1,10 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
 
 var ErrNotFound = gorm.ErrRecordNotFound
+var ErrAlreadyExists = errors.New("music already exists")

@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
@@ -16,7 +17,6 @@ type RawMusicMetadata struct {
 	gormmodel.UUIDModel
 	MusicID uuid.UUID
 
-	FileName         string
 	Title            string `json:"title"`
 	SortTitle        string `json:"sort_name"`
 	Artist           string `json:"artist"`
@@ -36,12 +36,14 @@ type RawMusicMetadata struct {
 	TagList []RawMusicMetadataTag
 }
 
-func (r RawMusicMetadata) ToEntity(Owner User) (music Music, album *Album, artist *Artist, genre *Genre) {
+func (r RawMusicMetadata) ToEntity(Owner User, fileName string) (music Music, album *Album, artist *Artist, genre *Genre) {
 	if r.Artist != "" {
 		artist = &Artist{
-			Owner:    Owner,
-			Name:     r.Artist,
-			SortName: r.SortArtist,
+			Owner: Owner,
+			Name:  r.Artist,
+		}
+		if r.SortArtist != "" {
+			artist.SortName = &r.Artist
 		}
 	}
 
@@ -54,26 +56,35 @@ func (r RawMusicMetadata) ToEntity(Owner User) (music Music, album *Album, artis
 
 	var musicTitle string
 	if r.Title == "" {
-		musicTitle = r.FileName
+		musicTitle = filepath.Base(fileName)
 	} else {
 		musicTitle = r.Title
 	}
 
 	music = Music{
-		Owner:            Owner,
-		Name:             musicTitle,
-		SortName:         r.SortTitle,
-		AlbumTrackNumber: int64(r.TrackNumber),
-		Duration:         r.Duration,
-		RawMetaData:      r,
-		Status:           MetadataParsed,
+		OwnerID:     Owner.ID,
+		Owner:       Owner,
+		Name:        musicTitle,
+		Duration:    r.Duration,
+		RawMetaData: r,
+		Status:      MetadataParsed,
+	}
+	{
+		if r.SortTitle != "" {
+			music.SortName = &r.SortTitle
+		}
+		if r.TrackNumber != 0 {
+			music.AlbumTrackNumber = &r.TrackNumber
+		}
 	}
 
 	if r.Album != "" {
 		album = &Album{
-			Owner:    Owner,
-			Name:     r.Album,
-			SortName: r.SortAlbum,
+			Owner: Owner,
+			Name:  r.Album,
+		}
+		if r.SortAlbum != "" {
+			album.SortName = &r.SortAlbum
 		}
 	}
 

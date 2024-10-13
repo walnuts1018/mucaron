@@ -23,11 +23,13 @@ services:
       PSQL_USER: postgres
       PSQL_PASSWORD: postgres
       PSQL_SSLMODE: disable
+      MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: mockaccesskey
       MINIO_SECRET_KEY: mocksecretkey
       REDIS_HOST: redis
       REDIS_PASSWORD: "redispassword"
       SESSION_SECRET: "mock-session-secret-----"
+      LOG_TYPE: "text"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 30s

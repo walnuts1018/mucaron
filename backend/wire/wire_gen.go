@@ -36,7 +36,7 @@ func CreateRouter(cfg config.Config) (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	usecaseUsecase := usecase.NewUsecase(cfg, postgresClient, postgresClient, postgresClient, postgresClient, postgresClient, postgresClient, ffmpegFFMPEG, ffProbe, minIO)
+	usecaseUsecase := usecase.NewUsecase(cfg, postgresClient, ffmpegFFMPEG, ffProbe, minIO)
 	handlerHandler, err := handler.NewHandler(cfg, usecaseUsecase)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func CreateRouter(cfg config.Config) (*gin.Engine, error) {
 
 // wire.go:
 
-var postgresSet = wire.NewSet(postgres.NewPostgres, wire.Bind(new(usecase.AlbumRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.ArtistRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.GenreRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.MusicRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.PlaylistRepository), new(*postgres.PostgresClient)), wire.Bind(new(usecase.UserRepository), new(*postgres.PostgresClient)))
+var postgresSet = wire.NewSet(postgres.NewPostgres, wire.Bind(new(usecase.EntityRepository), new(*postgres.PostgresClient)))
 
 var ffmpegSet = wire.NewSet(ffmpeg.NewFFMPEG, wire.Bind(new(usecase.Encoder), new(*ffmpeg.FFMPEG)))
 

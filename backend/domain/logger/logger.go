@@ -1,29 +1,28 @@
 package logger
 
 import (
-	"context"
 	"log/slog"
+	"os"
 
-	"go.opentelemetry.io/otel/trace"
+	"github.com/lmittmann/tint"
+	"github.com/walnuts1018/mucaron/backend/config"
 )
 
-type TraceHandler struct {
-	slog.Handler
-}
-
-func NewTraceHandler(base slog.Handler) TraceHandler {
-	return TraceHandler{
-		base,
+func CreateAndSetLogger(logLevel slog.Level, logType config.LogType) {
+	var hander slog.Handler
+	switch logType {
+	case config.LogTypeText:
+		hander = tint.NewHandler(os.Stdout, &tint.Options{
+			Level:     logLevel,
+			AddSource: logLevel == slog.LevelDebug,
+		})
+	case config.LogTypeJSON:
+		hander = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level:     logLevel,
+			AddSource: logLevel == slog.LevelDebug,
+		})
 	}
-}
 
-func (t TraceHandler) Handle(ctx context.Context, r slog.Record) error {
-	sc := trace.SpanContextFromContext(ctx)
-	if sc.IsValid() {
-		r.AddAttrs(
-			slog.String("trace_id", sc.TraceID().String()),
-			slog.String("span_id", sc.SpanID().String()),
-		)
-	}
-	return t.Handler.Handle(ctx, r)
+	logger := slog.New(newTraceHandler(hander))
+	slog.SetDefault(logger)
 }

@@ -11,19 +11,27 @@ import (
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 )
 
-type AlbumRepository interface{}
-type ArtistRepository interface{}
-type GenreRepository interface{}
-type MusicRepository interface {
-	CreateMusic(m entity.Music) error
+type EntityRepository interface {
+	musicRepository
+	userRepository
+
+	CreateMusicWithDependencies(m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error
 }
-type PlaylistRepository interface{}
-type UserRepository interface {
-	GetUserByID(userID uuid.UUID) (entity.User, error)
+
+type musicRepository interface {
+	CreateMusic(m entity.Music) error
+	UpdateMusic(m entity.Music) error
+	UpdateMusicStatus(musicID uuid.UUID, status entity.MusicStatus) error
+	DeleteMusics(musicIDs []uuid.UUID) error
+	GetMusicByIDs(ids []uuid.UUID) ([]entity.Music, error)
+}
+
+type userRepository interface {
+	CreateUser(u entity.User) error
+	UpdateUser(u entity.User) error
+	DeleteUser(u entity.User) error
 	GetUserByIDs(userIDs []uuid.UUID) ([]entity.User, error)
-	CreateUser(user entity.User) error
-	UpdateUser(user entity.User) error
-	DeleteUser(user entity.User) error
+	GetUserByID(userID uuid.UUID) (entity.User, error)
 	GetUserByName(userName string) (entity.User, error)
 }
 
@@ -43,40 +51,25 @@ type MetadataReader interface {
 }
 
 type Usecase struct {
-	cfg                config.Config
-	albumRepository    AlbumRepository
-	artistRepository   ArtistRepository
-	genreRepository    GenreRepository
-	MusicRepository    MusicRepository
-	playlistRepository PlaylistRepository
-	userRepository     UserRepository
-	encoder            Encoder
-	metadataReader     MetadataReader
-	objectStorage      ObjectStorage
+	cfg              config.Config
+	entityRepository EntityRepository
+	encoder          Encoder
+	metadataReader   MetadataReader
+	objectStorage    ObjectStorage
 
 	encodeMutex sync.Mutex
 }
 
 func NewUsecase(
 	cfg config.Config,
-	albumRepository AlbumRepository,
-	artistRepository ArtistRepository,
-	genreRepository GenreRepository,
-	MusicRepository MusicRepository,
-	playlistRepository PlaylistRepository,
-	userRepository UserRepository,
+	entityRepository EntityRepository,
 	encoder Encoder,
 	metadataReader MetadataReader,
 	objectStorage ObjectStorage,
 ) *Usecase {
 	return &Usecase{
 		cfg,
-		albumRepository,
-		artistRepository,
-		genreRepository,
-		MusicRepository,
-		playlistRepository,
-		userRepository,
+		entityRepository,
 		encoder,
 		metadataReader,
 		objectStorage,

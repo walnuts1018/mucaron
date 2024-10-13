@@ -10,6 +10,6 @@ type Album struct {
 	OwnerID  uuid.UUID
 	Owner    User `gorm:"foreignKey:OwnerID"`
 	Name     string
-	SortName string
+	SortName *string
 	Musics   []Music `gorm:"many2many:album_musics;"`
 }

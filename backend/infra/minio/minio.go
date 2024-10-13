@@ -80,7 +80,7 @@ func (m *MinIO) UploadDirectory(ctx context.Context, objectBaseDir string, local
 		}
 		return nil
 	}); err != nil {
-		return fmt.Errorf("failed to walk dir: %w", err)
+		return fmt.Errorf("failed to upload directory: %w", err)
 	}
 
 	return nil

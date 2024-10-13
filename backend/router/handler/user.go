@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
@@ -10,7 +11,23 @@ import (
 
 func (h *Handler) CreateUser(c *gin.Context) {
 	userName := c.PostForm("user_name")
+	if userName == "" {
+		slog.Error("user_name is required")
+		c.JSON(400, gin.H{
+			"error": "user_name is required",
+		})
+		return
+	}
+
 	inputPassword := c.PostForm("password")
+	if inputPassword == "" {
+		slog.Error("password is required")
+		c.JSON(400, gin.H{
+			"error": "password is required",
+		})
+		return
+	}
+
 	user, err := h.usecase.CreateUser(userName, entity.RawPassword(inputPassword))
 	if err != nil {
 		if errors.Is(err, usecase.ErrUserExists) {
