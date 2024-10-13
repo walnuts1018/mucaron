@@ -3,6 +3,7 @@ package ffmpeg
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/url"
 	"os"
@@ -11,10 +12,15 @@ import (
 	"strings"
 
 	"github.com/walnuts1018/mucaron/backend/config"
+	"github.com/walnuts1018/mucaron/backend/util/fileutil"
 )
 
 var baseURL = url.URL{Scheme: "https", Host: "to-be-replaced.example.com"}
 var OutDirPrefix = "mucaron-outdir"
+
+const (
+	LogFileDir = "/var/log/mucaron/ffmpeg"
+)
 
 type FFMPEG struct {
 	baseURL          *url.URL
@@ -28,7 +34,7 @@ func NewFFMPEG(cfg config.Config) (*FFMPEG, error) {
 	return &FFMPEG{
 		baseURL:    &baseURL,
 		FPS:        30,
-		Preset:     Veryslow,
+		Preset:     Medium,
 		VideoCodec: "libx264",
 		VideoQualityKeys: []VideoQualityKey{
 			VideoQualityKey360P,
@@ -47,6 +53,7 @@ func (f *FFMPEG) createArgs(id string, inputFileName string, audioOnly bool) ([]
 		"-i", inputFileName,
 		"-y",
 		"-hide_banner",
+		"-progress", "-",
 		"-preset", string(f.Preset),
 		"-keyint_min", "100",
 		"-g", "100",
@@ -116,13 +123,21 @@ func (f *FFMPEG) Encode(id string, path string, audioOnly bool) (string, error) 
 	if err != nil {
 		return "", err
 	}
+	slog.Debug("ffmpeg args", slog.Any("args", args))
+
 	cmd := exec.Command("ffmpeg", args...)
 	cmd.Dir = workdir
 
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+
+	logfile, err := fileutil.CreateFileRecursive(filepath.Join(LogFileDir, id+".log"))
+	if err != nil {
+		return "", fmt.Errorf("failed to create log file: %w", err)
+	}
+
+	cmd.Stdout = io.MultiWriter(logfile, &stdout)
+	cmd.Stderr = io.MultiWriter(logfile, &stderr)
 
 	if err := cmd.Run(); err != nil {
 		slog.Error("ffmpeg error",
