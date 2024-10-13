@@ -5,17 +5,25 @@ updates:
       - "/backend"
     schedule:
       interval: "weekly"
+    assignees:
+      - walnuts1018
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
+    assignees:
+      - walnuts1018
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
+    assignees:
+      - walnuts1018
   - package-ecosystem: docker
     directories:
       - "/backend"
       - "/frontend"
     schedule:
       interval: "weekly"
+    assignees:
+      - walnuts1018
