@@ -7,7 +7,7 @@ toolchain go1.23.2
 require (
 	dario.cat/mergo v1.0.1
 	github.com/Code-Hex/synchro v0.5.2
-	github.com/air-verse/air v1.60.0
+	github.com/air-verse/air v1.61.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/gin-contrib/sessions v1.0.1
 	github.com/gin-gonic/gin v1.10.0
