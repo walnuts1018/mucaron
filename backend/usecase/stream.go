@@ -12,6 +12,10 @@ import (
 	"github.com/google/uuid"
 )
 
+func (u *Usecase) GetPrimaryStreamM3U8URL(ctx context.Context, musicID uuid.UUID) (*url.URL, error) {
+	return u.objectStorage.GetObjectURL(ctx, filepath.Join(musicID.String(), "primary.m3u8"), "")
+}
+
 func (u *Usecase) GetStreamM3U8(ctx context.Context, musicID uuid.UUID, streamID string) (string, error) {
 	// streamIDの正規化
 	streamID = strings.TrimSuffix(streamID, ".m3u8")

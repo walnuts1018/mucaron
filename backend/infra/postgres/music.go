@@ -48,7 +48,7 @@ func (p *PostgresClient) DeleteMusics(musicIDs []uuid.UUID) error {
 
 func (p *PostgresClient) GetMusicByID(id uuid.UUID) (entity.Music, error) {
 	var m entity.Music
-	result := p.db.Preload(clause.Associations).First(&m, id)
+	result := p.db.Preload("Artists").First(&m, id)
 	if result.Error != nil {
 		return entity.Music{}, fmt.Errorf("failed to get music by id: %w", result.Error)
 	}
@@ -57,12 +57,31 @@ func (p *PostgresClient) GetMusicByID(id uuid.UUID) (entity.Music, error) {
 
 func (p *PostgresClient) GetMusicByIDs(ids []uuid.UUID) ([]entity.Music, error) {
 	m := make([]entity.Music, 0, len(ids))
-	result := p.db.Find(&m, ids)
+	result := p.db.Preload("Artists").Find(&m, ids)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get music by ids: %w", result.Error)
 	}
 	return m, nil
 }
+
+func (p *PostgresClient) GetMusicsByUserID(userID uuid.UUID) ([]entity.Music, error) {
+	m := make([]entity.Music, 0)
+	result := p.db.Preload("Artists").Where("owner_id = ?", userID).Find(&m)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to get music by user id: %w", result.Error)
+	}
+	return m, nil
+}
+
+func (p *PostgresClient) GetMusicIDsByUserID(userID uuid.UUID) ([]uuid.UUID, error) {
+	var ids []uuid.UUID
+	result := p.db.Model(&entity.Music{}).Where("owner_id = ?", userID).Pluck("id", &ids)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to get music ids by user id: %w", result.Error)
+	}
+	return ids, nil
+}
+
 
 func (p *PostgresClient) CreateMusicWithDependencies(m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error {
 	return p.db.Transaction(func(tx *gorm.DB) error {
