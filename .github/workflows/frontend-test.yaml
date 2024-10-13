@@ -1,0 +1,27 @@
+name: Frontend Test
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/frontend-test.yaml"
+      - "frontend/**"
+  push:
+    paths:
+      - ".github/workflows/frontend-test.yaml"
+      - "frontend/**"
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: yarn install
+
+      - name: lint
+        run: yarn lint
