@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  output: "standalone",
+  images: {
+    formats: ["image/webp"],
+  },
+  poweredByHeader: false,
+};
 
-export default nextConfig;
+module.exports = nextConfig;
