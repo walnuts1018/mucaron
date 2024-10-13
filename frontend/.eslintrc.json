@@ -1,3 +1,26 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "root": true,
+  "extends": [
+    "@hatena/hatena",
+    "@hatena/hatena/+typescript",
+    "@hatena/hatena/+react",
+    "@hatena/hatena/+prettier",
+    "next/core-web-vitals"
+  ],
+  "env": {
+    "node": true, // for jest
+    "jest": true // for jest
+  },
+  "rules": {
+    // `*.js` 向けのプロジェクト固有のルールをここに書く
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        // `*.ts` / `*.tsx` 向けのプロジェクト固有のルールをここに書く
+        "import/no-default-export": 0
+      }
+    }
+  ]
 }
