@@ -1,4 +1,4 @@
-name: Back Image Build
+name: Backend Image Build
 on:
   push:
     paths:
@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     name: Build Docker Image
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Check out
