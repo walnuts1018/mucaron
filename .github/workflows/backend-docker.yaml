@@ -44,7 +44,7 @@ jobs:
             ghcr.io/walnuts1018/mucaron-backend:${{ github.sha }}-${{ github.run_number }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.25.0
+        uses: aquasecurity/trivy-action@0.27.0
         with:
           image-ref: "ghcr.io/walnuts1018/mucaron-backend:${{ github.sha }}-${{ github.run_number }}"
           format: "sarif"
