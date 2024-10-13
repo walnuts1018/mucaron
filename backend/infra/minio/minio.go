@@ -19,8 +19,9 @@ import (
 const expires = 2 * 24 * time.Hour
 
 type MinIO struct {
-	minioBucket string
-	client      *minio.Client
+	publicEndpoint string
+	minioBucket    string
+	client         *minio.Client
 }
 
 func NewMinIOClient(cfg config.Config) (*MinIO, error) {
@@ -33,8 +34,9 @@ func NewMinIOClient(cfg config.Config) (*MinIO, error) {
 	}
 
 	return &MinIO{
-		minioBucket: cfg.MinIOBucket,
-		client:      minioClient,
+		publicEndpoint: cfg.MinIOPublicEndpoint,
+		minioBucket:    cfg.MinIOBucket,
+		client:         minioClient,
 	}, nil
 }
 
@@ -49,6 +51,11 @@ func (m *MinIO) GetObjectURL(ctx context.Context, objectName string, cacheContro
 	if err != nil {
 		return nil, fmt.Errorf("failed to get presigned URL: %w", err)
 	}
+
+	if m.publicEndpoint != "" {
+		url.Host = m.publicEndpoint
+	}
+
 	return url, nil
 }
 
@@ -93,4 +100,12 @@ func (m *MinIO) DeleteObject(ctx context.Context, objectName string) error {
 		return fmt.Errorf("failed to delete object: %w", err)
 	}
 	return nil
+}
+
+func (m *MinIO) GetObject(ctx context.Context, objectName string) (io.ReadCloser, error) {
+	reader, err := m.client.GetObject(ctx, m.minioBucket, objectName, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get object: %w", err)
+	}
+	return reader, nil
 }

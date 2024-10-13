@@ -38,7 +38,7 @@ func TestCreateTempFile(t *testing.T) {
 			}
 			defer got.Close()
 
-			gotContent, err := io.ReadAll(got.File())
+			gotContent, err := io.ReadAll(got)
 			if err != nil {
 				t.Errorf("failed to read all: %v", err)
 				return

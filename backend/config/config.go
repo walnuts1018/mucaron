@@ -16,21 +16,22 @@ import (
 var ErrInvalidSessionSecretLength = errors.New("session secret must be 16, 24, or 32 bytes")
 
 type Config struct {
-	ServerPort    string        `env:"SERVER_PORT" envDefault:"8080"`
-	ServerURL     string        `env:"SERVER_URL" envDefault:"localhost"`
-	LogLevel      slog.Level    `env:"LOG_LEVEL"`
-	LogType       LogType       `env:"LOG_TYPE" envDefault:"json"`
-	MaxUploadSize uint64        `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
-	EncodeTimeout time.Duration `env:"ENCODE_TIMEOUT" envDefault:"1h"`
+	ServerPort     string        `env:"SERVER_PORT" envDefault:"8080"`
+	ServerEndpoint string        `env:"SERVER_ENDPOINT" envDefault:"http://localhost:80"`
+	LogLevel       slog.Level    `env:"LOG_LEVEL"`
+	LogType        LogType       `env:"LOG_TYPE" envDefault:"json"`
+	MaxUploadSize  uint64        `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
+	EncodeTimeout  time.Duration `env:"ENCODE_TIMEOUT" envDefault:"1h"`
 
 	PSQLDSN string `env:"PSQL_DSN" envDefault:""` // If PSQL_DSN is set, other PSQL_* variables will be ignored
 
 	// ------------------------ MinIO ------------------------
-	MinIOEndpoint  string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`
-	MinIOAccessKey string `env:"MINIO_ACCESS_KEY,required"`
-	MinIOSecretKey string `env:"MINIO_SECRET_KEY,required"`
-	MinIOUseSSL    bool   `env:"MINIO_USE_SSL" envDefault:"false"`
-	MinIOBucket    string `env:"MINIO_BUCKET" envDefault:"mucaron"`
+	MinIOEndpoint       string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`
+	MinIOAccessKey      string `env:"MINIO_ACCESS_KEY,required"`
+	MinIOSecretKey      string `env:"MINIO_SECRET_KEY,required"`
+	MinIOUseSSL         bool   `env:"MINIO_USE_SSL" envDefault:"false"`
+	MinIOBucket         string `env:"MINIO_BUCKET" envDefault:"mucaron"`
+	MinIOPublicEndpoint string `env:"MINIO_PUBLIC_ENDPOINT" envDefault:""` // localhost:9000
 	// -------------------------------------------------------
 
 	// ------------------------ Redis ------------------------

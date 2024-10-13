@@ -14,6 +14,7 @@ import (
 )
 
 var baseURL = url.URL{Scheme: "https", Host: "to-be-replaced.example.com"}
+var OutDirPrefix = "mucaron-outdir"
 
 type FFMPEG struct {
 	baseURL          *url.URL
@@ -35,6 +36,10 @@ func NewFFMPEG(cfg config.Config) (*FFMPEG, error) {
 			VideoQualityKey1080P,
 		},
 	}, nil
+}
+
+func (f *FFMPEG) GetOutDirPrefix() string {
+	return OutDirPrefix
 }
 
 func (f *FFMPEG) createArgs(id string, inputFileName string, audioOnly bool) ([]string, error) {
@@ -102,7 +107,7 @@ func (f *FFMPEG) createArgs(id string, inputFileName string, audioOnly bool) ([]
 戻り値はエンコード先ディレクトリの絶対パスです。
 */
 func (f *FFMPEG) Encode(id string, path string, audioOnly bool) (string, error) {
-	workdir, err := os.MkdirTemp("", "mucaron-outdir")
+	workdir, err := os.MkdirTemp("", OutDirPrefix)
 	if err != nil {
 		return "", err
 	}

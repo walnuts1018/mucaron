@@ -36,7 +36,10 @@ func CreateRouter(cfg config.Config) (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	usecaseUsecase := usecase.NewUsecase(cfg, postgresClient, ffmpegFFMPEG, ffProbe, minIO)
+	usecaseUsecase, err := usecase.NewUsecase(cfg, postgresClient, ffmpegFFMPEG, ffProbe, minIO)
+	if err != nil {
+		return nil, err
+	}
 	handlerHandler, err := handler.NewHandler(cfg, usecaseUsecase)
 	if err != nil {
 		return nil, err

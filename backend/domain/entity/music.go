@@ -40,6 +40,7 @@ type MusicStatus string
 const (
 	Unknown             MusicStatus = "unknown"
 	MetadataParsed      MusicStatus = "metadata_parsed"
+	EncodeRetrying      MusicStatus = "encode_retrying"
 	AudioEncoding       MusicStatus = "audio_encoding"
 	AudioEncodeFinished MusicStatus = "audio_encode_finished"
 	VideoEncoding       MusicStatus = "video_encoding"

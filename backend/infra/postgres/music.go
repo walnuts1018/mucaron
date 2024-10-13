@@ -46,6 +46,15 @@ func (p *PostgresClient) DeleteMusics(musicIDs []uuid.UUID) error {
 	return nil
 }
 
+func (p *PostgresClient) GetMusicByID(id uuid.UUID) (entity.Music, error) {
+	var m entity.Music
+	result := p.db.Preload(clause.Associations).First(&m, id)
+	if result.Error != nil {
+		return entity.Music{}, fmt.Errorf("failed to get music by id: %w", result.Error)
+	}
+	return m, nil
+}
+
 func (p *PostgresClient) GetMusicByIDs(ids []uuid.UUID) ([]entity.Music, error) {
 	m := make([]entity.Music, 0, len(ids))
 	result := p.db.Find(&m, ids)
@@ -106,4 +115,12 @@ func (p *PostgresClient) CreateMusicWithDependencies(m entity.Music, album *enti
 
 		return nil
 	})
+}
+
+func (p *PostgresClient) UpdateMusicStatuses(musicIDs []uuid.UUID, status entity.MusicStatus) error {
+	result := p.db.Model(&entity.Music{}).Where("id IN ?", musicIDs).Update("status", status)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update music status: %w", result.Error)
+	}
+	return nil
 }

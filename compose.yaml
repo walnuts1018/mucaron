@@ -30,6 +30,7 @@ services:
       REDIS_PASSWORD: "redispassword"
       SESSION_SECRET: "mock-session-secret-----"
       LOG_TYPE: "text"
+      MINIO_PUBLIC_ENDPOINT: "localhost:9000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 30s
@@ -64,7 +65,6 @@ services:
   minio:
     image: minio/minio
     ports:
-      - 9000:9000
       - 9001:9001
     volumes:
       - minio_data:/export
@@ -81,6 +81,23 @@ services:
       REDIS_PASSWORD: "redispassword"
     volumes:
       - redis_data:/bitnami/redis/data
+  nginx:
+    image: nginx:1.27
+    ports:
+      - "80:80"
+      - "9000:9000"
+    volumes:
+      - source: ./nginx
+        target: /etc/nginx/conf.d
+        type: bind
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 networks:
   default: {}
 

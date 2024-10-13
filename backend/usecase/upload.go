@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log/slog"
+	"net/url"
+	"regexp"
 
 	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
@@ -12,25 +13,28 @@ import (
 	"github.com/walnuts1018/mucaron/backend/util/temp"
 )
 
+const uploadedExtension = ".mucaronuploaded"
+
 func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader, fileName string) error {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return fmt.Errorf("failed to generate uuid: %w", err)
 	}
 
-	tmpfile, err := temp.CreateTempFile(r, id.String())
+	tmpfile, err := temp.CreateTempFile(r, fmt.Sprintf("%s%s", id.String(), uploadedExtension))
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
+	defer tmpfile.Close()
 
-	raw, err := u.metadataReader.GetMetadata(ctx, tmpfile.File().Name())
+	raw, err := u.metadataReader.GetMetadata(ctx, tmpfile.Name())
 	if err != nil {
 		return fmt.Errorf("failed to get metadata: %w", err)
 	}
 
 	music, album, artist, genre := raw.ToEntity(user, fileName)
 
-	hash, err := hash.ReaderHash(tmpfile.File())
+	hash, err := hash.ReaderHash(tmpfile)
 	if err != nil {
 		return fmt.Errorf("failed to get file hash: %w", err)
 	}
@@ -43,26 +47,22 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 	}
 
 	go func() {
-		defer tmpfile.Close()
-
 		ctx, cancel := context.WithTimeout(context.Background(), u.cfg.EncodeTimeout)
 		defer cancel()
 
-		u.encodeMutex.Lock()
-		defer u.encodeMutex.Unlock()
-
-		if err := u.entityRepository.UpdateMusicStatus(music.ID, entity.VideoEncoding); err != nil {
-			slog.Error("failed to update music status", slog.Any("error", err), slog.String("music_id", music.ID.String()))
-		}
-
-		slog.Info("start encoding", slog.String("music_id", music.ID.String()))
-		u.encode(ctx, music, tmpfile.File().Name(), false)
-		slog.Info("finish encoding", slog.String("music_id", music.ID.String()))
-
-		if err := u.entityRepository.UpdateMusicStatus(music.ID, entity.VideoEncoded); err != nil {
-			slog.Error("failed to update music status", slog.Any("error", err), slog.String("music_id", music.ID.String()))
-		}
+		u.encode(ctx, tmpfile.Name(), music)
 	}()
 
 	return nil
+}
+
+var re = regexp.MustCompile(`(stream_[\d]+.m3u8)`)
+
+func replaceM3U8URL(content string, serverEndpoint, musicID string) (string, error) {
+	newURL, err := url.JoinPath(serverEndpoint, "/api/v1/music/", musicID, "/stream/$1")
+	if err != nil {
+		return "", fmt.Errorf("failed to join url: %w", err)
+	}
+	replaced := re.ReplaceAllString(content, newURL)
+	return replaced, nil
 }

@@ -35,12 +35,12 @@ func TestLoad(t *testing.T) {
 		{
 			name: "normal",
 			envs: map[string]string{
-				"SERVER_PORT": "9000",
-				"SERVER_URL":  "test",
+				"SERVER_PORT":     "9000",
+				"SERVER_ENDPOINT": "https://example.com",
 			},
 			want: Config{
-				ServerPort: "9000",
-				ServerURL:  "test",
+				ServerPort:     "9000",
+				ServerEndpoint: "https://example.com",
 			},
 			wantErr: false,
 		},
@@ -131,9 +131,9 @@ func Test_equal(t *testing.T) {
 			name: "normal",
 			args: args{
 				got: Config{
-					ServerPort: "8080",
-					ServerURL:  "localhost",
-					LogLevel:   slog.LevelDebug,
+					ServerPort:     "8080",
+					ServerEndpoint: "http://localhost:8080",
+					LogLevel:       slog.LevelDebug,
 				},
 				want: Config{
 					ServerPort: "8080",
@@ -147,9 +147,9 @@ func Test_equal(t *testing.T) {
 			name: "not equal",
 			args: args{
 				got: Config{
-					ServerPort: "8080",
-					ServerURL:  "localhost",
-					LogLevel:   slog.LevelInfo,
+					ServerPort:     "8080",
+					ServerEndpoint: "http://localhost:8080",
+					LogLevel:       slog.LevelInfo,
 				},
 				want: Config{
 					ServerPort: "9090",

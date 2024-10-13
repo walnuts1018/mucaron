@@ -23,7 +23,9 @@ type musicRepository interface {
 	UpdateMusic(m entity.Music) error
 	UpdateMusicStatus(musicID uuid.UUID, status entity.MusicStatus) error
 	DeleteMusics(musicIDs []uuid.UUID) error
+	GetMusicByID(id uuid.UUID) (entity.Music, error)
 	GetMusicByIDs(ids []uuid.UUID) ([]entity.Music, error)
+	UpdateMusicStatuses(musicIDs []uuid.UUID, status entity.MusicStatus) error
 }
 
 type userRepository interface {
@@ -37,6 +39,9 @@ type userRepository interface {
 
 type ObjectStorage interface {
 	GetObjectURL(ctx context.Context, objectName string, cacheControl string) (*url.URL, error)
+	// GetObjectURLs(ctx context.Context, objectName []string, cacheControl string) ([]*url.URL, error)
+
+	GetObject(ctx context.Context, objectName string) (io.ReadCloser, error)
 	UploadObject(ctx context.Context, objectName string, data io.Reader, size int64) error
 	UploadDirectory(ctx context.Context, objectBaseDir string, localDir string) error
 	DeleteObject(ctx context.Context, objectName string) error
@@ -44,6 +49,7 @@ type ObjectStorage interface {
 
 type Encoder interface {
 	Encode(id string, path string, audioOnly bool) (string, error)
+	GetOutDirPrefix() string
 }
 
 type MetadataReader interface {
@@ -66,8 +72,8 @@ func NewUsecase(
 	encoder Encoder,
 	metadataReader MetadataReader,
 	objectStorage ObjectStorage,
-) *Usecase {
-	return &Usecase{
+) (*Usecase, error) {
+	u := Usecase{
 		cfg,
 		entityRepository,
 		encoder,
@@ -75,4 +81,10 @@ func NewUsecase(
 		objectStorage,
 		sync.Mutex{},
 	}
+
+	if err := u.EncodeSuspended(context.Background()); err != nil {
+		return nil, err
+	}
+
+	return &u, nil
 }
