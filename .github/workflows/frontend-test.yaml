@@ -22,6 +22,8 @@ jobs:
           node-version: "20"
 
       - run: yarn install
+        working-directory: frontend
 
       - name: lint
+        working-directory: frontend
         run: yarn lint
