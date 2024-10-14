@@ -31,9 +31,11 @@ func (u *Usecase) encode(ctx context.Context, uploadedFilePath string, music ent
 		}
 		slog.Info("finish encoding", slog.String("music_id", music.ID.String()))
 	}
-	if err := os.Remove(uploadedFilePath); err != nil {
+
+	encodedUploadedFilePath := strings.ReplaceAll(uploadedFilePath, uploadedFilePath, encodedExtension)
+	if err := os.Rename(uploadedFilePath, encodedUploadedFilePath); err != nil {
 		slog.Error("failed to remove uploaded file", slog.String("music_id", music.ID.String()), slog.Any("error", err))
-		// ファイル削除に失敗しても、エンコードは成功しているので、returnしない
+		// ファイル移動に失敗しても、エンコードは成功しているので、returnしない
 	}
 
 	primaryM3U8, err := os.ReadFile(filepath.Join(outDir, "primary.m3u8"))
@@ -60,6 +62,11 @@ func (u *Usecase) encode(ctx context.Context, uploadedFilePath string, music ent
 
 	if err := os.RemoveAll(outDir); err != nil {
 		slog.Error("failed to remove directory", slog.String("music_id", music.ID.String()), slog.Any("error", err))
+		// ファイル削除に失敗しても、アップロードは成功しているので、returnしない
+	}
+
+	if err := os.Remove(encodedUploadedFilePath); err != nil {
+		slog.Error("failed to remove uploaded file", slog.String("music_id", music.ID.String()), slog.Any("error", err))
 		// ファイル削除に失敗しても、アップロードは成功しているので、returnしない
 	}
 

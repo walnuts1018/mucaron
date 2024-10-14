@@ -13,7 +13,10 @@ import (
 	"github.com/walnuts1018/mucaron/backend/util/temp"
 )
 
-const uploadedExtension = ".mucaronuploaded"
+const (
+	uploadedExtension = ".mucaronuploaded"
+	encodedExtension  = ".mucaronencoded"
+)
 
 func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader, fileName string) error {
 	id, err := uuid.NewV7()
