@@ -125,6 +125,15 @@ func (u *Usecase) EncodeSuspended(ctx context.Context) error {
 			continue
 		}
 
+		if music.Status != entity.VideoEncoded {
+			slog.Debug("skip encoded music", slog.String("music_id", music.ID.String()))
+			// すでにエンコード済みのファイルを削除
+			if err := os.Remove(filepath.Join(os.TempDir(), file.Name())); err != nil {
+				slog.Error("failed to remove invalid file", slog.String("file_name", file.Name()), slog.Any("error", err))
+			}
+			continue
+		}
+
 		musics = append(musics, music)
 		filePathes = append(filePathes, filepath.Join(os.TempDir(), file.Name()))
 	}
