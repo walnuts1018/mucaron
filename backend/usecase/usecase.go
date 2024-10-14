@@ -26,7 +26,7 @@ type musicRepository interface {
 	GetMusicByID(id uuid.UUID) (entity.Music, error)
 	GetMusicByIDs(ids []uuid.UUID) ([]entity.Music, error)
 	GetMusicsByUserID(userID uuid.UUID) ([]entity.Music, error)
-	GetMusicIDsByUserID(userID uuid.UUID) ([]uuid.UUID, error) 
+	GetMusicIDsByUserID(userID uuid.UUID) ([]uuid.UUID, error)
 	UpdateMusicStatuses(musicIDs []uuid.UUID, status entity.MusicStatus) error
 }
 

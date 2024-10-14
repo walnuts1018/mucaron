@@ -7,12 +7,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/walnuts1018/mucaron/backend/domain"
 )
 
 func (h *Handler) GetMusics(c *gin.Context) {
 	user, err := h.getUser(c)
 	if err != nil {
-		if errors.Is(err, ErrNeedLogin) {
+		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
 				"error": "need login",
 			})
@@ -24,7 +25,7 @@ func (h *Handler) GetMusics(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	musics, err := h.usecase.GetMusics(user)
 	if err != nil {
 		slog.Error("failed to get musics", slog.Any("error", err))
@@ -41,7 +42,6 @@ func (h *Handler) GetMusics(c *gin.Context) {
 
 func (h *Handler) GetMusic(c *gin.Context) {}
 
-
 func (h *Handler) UpdateMusicMetadata(c *gin.Context) {}
 
 type DeleteMusicsRequest struct {
@@ -51,7 +51,7 @@ type DeleteMusicsRequest struct {
 func (h *Handler) DeleteMusics(c *gin.Context) {
 	user, err := h.getUser(c)
 	if err != nil {
-		if errors.Is(err, ErrNeedLogin) {
+		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
 				"error": "need login",
 			})
@@ -91,6 +91,12 @@ func (h *Handler) DeleteMusics(c *gin.Context) {
 	}
 
 	if err := h.usecase.DeleteMusics(user, uuids); err != nil {
+		if errors.Is(err, domain.ErrAccessDenied) {
+			c.JSON(403, gin.H{
+				"error": "access denied",
+			})
+			return
+		}
 		slog.Error("failed to delete musics", slog.Any("error", err))
 		c.JSON(500, gin.H{
 			"error": "failed to delete musics",
@@ -118,8 +124,29 @@ func (h *Handler) RedirectMusicPrimaryStream(c *gin.Context) {
 		return
 	}
 
-	url, err := h.usecase.GetPrimaryStreamM3U8URL(c.Request.Context(), musicUUID)
+	user, err := h.getUser(c)
 	if err != nil {
+		if errors.Is(err, ErrLoginRequired) {
+			c.JSON(401, gin.H{
+				"error": "need login",
+			})
+			return
+		}
+		slog.Error("failed to get user", slog.Any("error", err))
+		c.JSON(500, gin.H{
+			"error": "failed to get user",
+		})
+		return
+	}
+
+	url, err := h.usecase.GetPrimaryStreamM3U8URL(c.Request.Context(), user, musicUUID)
+	if err != nil {
+		if errors.Is(err, domain.ErrAccessDenied) {
+			c.JSON(403, gin.H{
+				"error": "access denied",
+			})
+			return
+		}
 		slog.Error("failed to get primary stream", slog.Any("error", err))
 		c.JSON(500, gin.H{
 			"error": "failed to get primary stream",
@@ -147,6 +174,21 @@ func (h *Handler) GetMusicStream(c *gin.Context) {
 		return
 	}
 
+	user, err := h.getUser(c)
+	if err != nil {
+		if errors.Is(err, ErrLoginRequired) {
+			c.JSON(401, gin.H{
+				"error": "need login",
+			})
+			return
+		}
+		slog.Error("failed to get user", slog.Any("error", err))
+		c.JSON(500, gin.H{
+			"error": "failed to get user",
+		})
+		return
+	}
+
 	musicUUID, err := uuid.Parse(musicID)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -155,8 +197,14 @@ func (h *Handler) GetMusicStream(c *gin.Context) {
 		return
 	}
 
-	body, err := h.usecase.GetStreamM3U8(c.Request.Context(), musicUUID, streamID)
+	body, err := h.usecase.GetStreamM3U8(c.Request.Context(), user, musicUUID, streamID)
 	if err != nil {
+		if errors.Is(err, domain.ErrAccessDenied) {
+			c.JSON(403, gin.H{
+				"error": "access denied",
+			})
+			return
+		}
 		slog.Error("failed to get stream", slog.Any("error", err))
 		c.JSON(500, gin.H{
 			"error": "failed to get stream",

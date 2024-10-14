@@ -72,3 +72,5 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 
 	return r, nil
 }
+
+func checkLogin(c *gin.Context) gin.HandlerFunc
