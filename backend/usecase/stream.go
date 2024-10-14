@@ -14,6 +14,8 @@ import (
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 )
 
+const maxAgeSecond = 7 * 24 * 60 * 60 // 1 week
+
 func (u *Usecase) GetPrimaryStreamM3U8URL(ctx context.Context, user entity.User, musicID uuid.UUID) (*url.URL, error) {
 	m, err := u.entityRepository.GetMusicByID(musicID)
 	if err != nil {
@@ -70,7 +72,7 @@ func (u *Usecase) GetStreamM3U8(ctx context.Context, user entity.User, musicID u
 		}
 		slog.Debug("url", slog.String("url", url.String()))
 
-		presignedURL, err := u.objectStorage.GetObjectURL(ctx, url.Path, "")
+		presignedURL, err := u.objectStorage.GetObjectURL(ctx, strings.TrimPrefix(url.Path, "/"), fmt.Sprintf("max-age=%d", maxAgeSecond))
 		if err != nil {
 			return "", fmt.Errorf("failed to get presigned URL: %w", err)
 		}
