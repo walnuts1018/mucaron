@@ -18,35 +18,35 @@ const (
 	encodedExtension  = ".mucaronencoded"
 )
 
-func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader, fileName string) error {
+func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader, fileName string) (uuid.UUID, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return fmt.Errorf("failed to generate uuid: %w", err)
+		return uuid.Nil, fmt.Errorf("failed to generate uuid: %w", err)
 	}
 
 	tmpfile, err := temp.CreateTempFile(r, fmt.Sprintf("%s%s", id.String(), uploadedExtension))
 	if err != nil {
-		return fmt.Errorf("failed to create temp file: %w", err)
+		return uuid.Nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
 	defer tmpfile.Close()
 
 	raw, err := u.metadataReader.GetMetadata(ctx, tmpfile.Name())
 	if err != nil {
-		return fmt.Errorf("failed to get metadata: %w", err)
+		return uuid.Nil, fmt.Errorf("failed to get metadata: %w", err)
 	}
 
 	music, album, artist, genre := raw.ToEntity(user, fileName)
 
 	hash, err := hash.ReaderHash(tmpfile)
 	if err != nil {
-		return fmt.Errorf("failed to get file hash: %w", err)
+		return uuid.Nil, fmt.Errorf("failed to get file hash: %w", err)
 	}
 
 	music.ID = id
 	music.FileHash = hash
 
 	if err := u.entityRepository.CreateMusicWithDependencies(music, album, artist, genre); err != nil {
-		return fmt.Errorf("failed to create music: %w", err)
+		return uuid.Nil, fmt.Errorf("failed to create music: %w", err)
 	}
 
 	go func() {
@@ -56,7 +56,7 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 		u.encode(ctx, tmpfile.Name(), music)
 	}()
 
-	return nil
+	return music.ID, nil
 }
 
 var re = regexp.MustCompile(`(stream_[\d]+.m3u8)`)
