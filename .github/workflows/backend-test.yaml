@@ -36,6 +36,11 @@ jobs:
       - name: go mod download
         run: go mod download
 
+      - name: go generate 忘れを検出
+        run: |
+          go generate ./...
+          git diff --exit-code
+
       - name: Run tests
         run: go test -cover ./... -coverprofile="cover.out"
 
