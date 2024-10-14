@@ -51,6 +51,6 @@ func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (sql stri
 		slog.LogAttrs(ctx, slog.LevelError, "gorm trace", append(defaultAttrs, slog.Any("error", err))...)
 		return
 	} else {
-		slog.LogAttrs(ctx, slog.LevelInfo, "gorm trace", defaultAttrs...)
+		slog.LogAttrs(ctx, slog.LevelDebug, "gorm trace", defaultAttrs...)
 	}
 }
