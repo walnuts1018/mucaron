@@ -17,7 +17,7 @@ func TestNewLoginInfo(t *testing.T) {
 		{
 			name: "normal",
 			args: args{
-				rawPassword: "password",
+				rawPassword: "PassWordSelelas2o",
 			},
 		},
 	}
