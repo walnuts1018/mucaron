@@ -36,6 +36,12 @@ func (h *Handler) CreateUser(c *gin.Context) {
 			})
 			return
 		}
+		if errors.Is(err, entity.ErrInvalidPassword) {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 		c.JSON(400, gin.H{
 			"error": "failed to create user",
 		})

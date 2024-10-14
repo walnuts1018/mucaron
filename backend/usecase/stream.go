@@ -10,11 +10,35 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/walnuts1018/mucaron/backend/domain"
+	"github.com/walnuts1018/mucaron/backend/domain/entity"
 )
 
-func (u *Usecase) GetStreamM3U8(ctx context.Context, musicID uuid.UUID, streamID string) (string, error) {
+func (u *Usecase) GetPrimaryStreamM3U8URL(ctx context.Context, user entity.User, musicID uuid.UUID) (*url.URL, error) {
+	m, err := u.entityRepository.GetMusicByID(musicID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get music by id: %w", err)
+	}
+	if m.OwnerID != user.ID {
+		slog.Warn("access denied", slog.String("music_id", musicID.String()), slog.String("access_user_id", user.ID.String()), slog.String("owner_id", m.OwnerID.String()))
+		return nil, domain.ErrAccessDenied
+	}
+	return u.objectStorage.GetObjectURL(ctx, filepath.Join(musicID.String(), "primary.m3u8"), "")
+}
+
+func (u *Usecase) GetStreamM3U8(ctx context.Context, user entity.User, musicID uuid.UUID, streamID string) (string, error) {
 	// streamIDの正規化
 	streamID = strings.TrimSuffix(streamID, ".m3u8")
+
+	m, err := u.entityRepository.GetMusicByID(musicID)
+	if err != nil {
+		return "", fmt.Errorf("failed to get music by id: %w", err)
+	}
+
+	if m.OwnerID != user.ID {
+		slog.Warn("access denied", slog.String("music_id", musicID.String()), slog.String("access_user_id", user.ID.String()), slog.String("owner_id", m.OwnerID.String()))
+		return "", domain.ErrAccessDenied
+	}
 
 	base, err := u.objectStorage.GetObject(ctx, filepath.Join(musicID.String(), fmt.Sprintf("%s.m3u8", streamID)))
 	if err != nil {

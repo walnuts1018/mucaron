@@ -12,7 +12,7 @@ func (h *Handler) Upload(c *gin.Context) {
 	slog.Debug("upload music")
 	user, err := h.getUser(c)
 	if err != nil {
-		if errors.Is(err, ErrNeedLogin) {
+		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
 				"error": "need login",
 			})

@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	ErrNeedLogin = errors.New("need login")
+	ErrLoginRequired = errors.New("login required")
 )
 
 type Handler struct {
@@ -43,7 +43,7 @@ func (h *Handler) getUser(c *gin.Context) (entity.User, error) {
 			slog.String("method", c.Request.Method),
 			slog.String("client_ip", c.ClientIP()),
 		)
-		return entity.User{}, ErrNeedLogin
+		return entity.User{}, ErrLoginRequired
 	}
 
 	userID, err := uuid.Parse(userIDStr)
@@ -59,7 +59,7 @@ func (h *Handler) getUser(c *gin.Context) (entity.User, error) {
 				slog.String("method", c.Request.Method),
 				slog.String("client_ip", c.ClientIP()),
 			)
-			return entity.User{}, ErrNeedLogin
+			return entity.User{}, ErrLoginRequired
 		}
 		return entity.User{}, fmt.Errorf("failed to get user by id: %w", err)
 	}
