@@ -13,7 +13,7 @@ const Alphabets = UpperLetters + LowerLetters
 const Alphanumeric = Alphabets + Numbers
 const AlphanumericSymbols = Alphanumeric + Symbols
 
-func String(length int, base string) (string, error) {
+func String(length uint, base string) (string, error) {
 	b := make([]byte, length)
 	if _, err := rand.Read(b); err != nil {
 		return "", fmt.Errorf("failed to read random: %w", err)
