@@ -32,9 +32,9 @@ func (u *Usecase) encode(ctx context.Context, uploadedFilePath string, music ent
 		slog.Info("finish encoding", slog.String("music_id", music.ID.String()))
 	}
 
-	encodedUploadedFilePath := strings.ReplaceAll(uploadedFilePath, uploadedFilePath, encodedExtension)
+	encodedUploadedFilePath := strings.ReplaceAll(uploadedFilePath, uploadedExtension, encodedExtension)
 	if err := os.Rename(uploadedFilePath, encodedUploadedFilePath); err != nil {
-		slog.Error("failed to remove uploaded file", slog.String("music_id", music.ID.String()), slog.Any("error", err))
+		slog.Error("failed to rename uploaded file", slog.String("music_id", music.ID.String()), slog.Any("error", err))
 		// ファイル移動に失敗しても、エンコードは成功しているので、returnしない
 	}
 
@@ -55,10 +55,12 @@ func (u *Usecase) encode(ctx context.Context, uploadedFilePath string, music ent
 		return
 	}
 
+	slog.Info("start uploading", slog.String("music_id", music.ID.String()))
 	if err := u.objectStorage.UploadDirectory(ctx, music.ID.String(), outDir); err != nil {
 		slog.Error("failed to upload directory", slog.String("music_id", music.ID.String()), slog.Any("error", err))
 		return
 	}
+	slog.Info("finish uploading", slog.String("music_id", music.ID.String()))
 
 	if err := os.RemoveAll(outDir); err != nil {
 		slog.Error("failed to remove directory", slog.String("music_id", music.ID.String()), slog.Any("error", err))
@@ -105,12 +107,21 @@ func (u *Usecase) EncodeSuspended(ctx context.Context) error {
 		id, err := uuid.Parse(file.Name()[:len(file.Name())-len(filepath.Ext(file.Name()))])
 		if err != nil {
 			slog.Error("failed to parse uuid", slog.String("file_name", file.Name()), slog.Any("error", err))
+			// 無効なファイルを削除
+			if err := os.Remove(filepath.Join(os.TempDir(), file.Name())); err != nil {
+				slog.Error("failed to remove invalid file", slog.String("file_name", file.Name()), slog.Any("error", err))
+			}
 			continue
 		}
 
 		music, err := u.entityRepository.GetMusicByID(id)
 		if err != nil {
 			slog.Error("failed to get music by id", slog.String("music_id", id.String()), slog.Any("error", err))
+			// すでに削除されている / 無効なファイルを削除
+			// このメソッドはサーバー起動前にのみ実行されることを想定しているので、ファイルがアップロードされたもののまだDBには存在していない、というケースは無視する
+			if err := os.Remove(filepath.Join(os.TempDir(), file.Name())); err != nil {
+				slog.Error("failed to remove invalid file", slog.String("file_name", file.Name()), slog.Any("error", err))
+			}
 			continue
 		}
 
