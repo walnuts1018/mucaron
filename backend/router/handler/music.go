@@ -8,14 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/domain"
-	"github.com/walnuts1018/mucaron/backend/tracer"
 )
 
 func (h *Handler) GetMusics(c *gin.Context) {
-	ctx, span := tracer.Tracer.Start(c.Request.Context(), "Handler.GetMusics")
-	defer span.End()
-
-	user, err := h.getUser(ctx, c)
+	user, err := h.getUser(c.Request.Context(), c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
@@ -30,7 +26,7 @@ func (h *Handler) GetMusics(c *gin.Context) {
 		return
 	}
 
-	musics, err := h.usecase.GetMusics(user)
+	musics, err := h.usecase.GetMusics(c.Request.Context(), user)
 	if err != nil {
 		slog.Error("failed to get musics", slog.Any("error", err))
 		c.JSON(500, gin.H{
@@ -53,10 +49,7 @@ type DeleteMusicsRequest struct {
 }
 
 func (h *Handler) DeleteMusics(c *gin.Context) {
-	ctx, span := tracer.Tracer.Start(c.Request.Context(), "Handler.DeleteMusics")
-	defer span.End()
-
-	user, err := h.getUser(ctx, c)
+	user, err := h.getUser(c.Request.Context(), c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
@@ -97,7 +90,7 @@ func (h *Handler) DeleteMusics(c *gin.Context) {
 		uuids = append(uuids, u)
 	}
 
-	if err := h.usecase.DeleteMusics(user, uuids); err != nil {
+	if err := h.usecase.DeleteMusics(c.Request.Context(), user, uuids); err != nil {
 		if errors.Is(err, domain.ErrAccessDenied) {
 			c.JSON(403, gin.H{
 				"error": "access denied",
@@ -115,9 +108,6 @@ func (h *Handler) DeleteMusics(c *gin.Context) {
 }
 
 func (h *Handler) RedirectMusicPrimaryStream(c *gin.Context) {
-	ctx, span := tracer.Tracer.Start(c.Request.Context(), "Handler.RedirectMusicPrimaryStream")
-	defer span.End()
-
 	musicID := c.Param("id")
 	if musicID == "" {
 		c.JSON(400, gin.H{
@@ -134,7 +124,7 @@ func (h *Handler) RedirectMusicPrimaryStream(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUser(ctx, c)
+	user, err := h.getUser(c.Request.Context(), c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
@@ -168,9 +158,6 @@ func (h *Handler) RedirectMusicPrimaryStream(c *gin.Context) {
 }
 
 func (h *Handler) GetMusicStream(c *gin.Context) {
-	ctx, span := tracer.Tracer.Start(c.Request.Context(), "Handler.GetMusicStream")
-	defer span.End()
-
 	musicID := c.Param("id")
 	if musicID == "" {
 		c.JSON(400, gin.H{
@@ -187,7 +174,7 @@ func (h *Handler) GetMusicStream(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUser(ctx, c)
+	user, err := h.getUser(c.Request.Context(), c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{

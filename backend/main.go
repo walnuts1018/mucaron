@@ -30,7 +30,7 @@ func main() {
 	}
 	defer close()
 
-	router, err := wire.CreateRouter(cfg)
+	router, err := wire.CreateRouter(ctx, cfg)
 	if err != nil {
 		slog.Error("Failed to create router", slog.Any("error", err))
 		os.Exit(1)
