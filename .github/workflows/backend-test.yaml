@@ -28,11 +28,6 @@ jobs:
           cache: true
           cache-dependency-path: backend/go.sum
 
-      - name: Install ffmpeg
-        run: |
-          sudo apt-get update
-          sudo apt-get install ffmpeg
-
       - name: go mod download
         run: go mod download
 
@@ -40,6 +35,11 @@ jobs:
         run: |
           go generate ./...
           git diff --exit-code -- ':(exclude)go.sum'
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install ffmpeg -y
 
       - name: Run tests
         run: go test -cover ./... -coverprofile="cover.out"
