@@ -8,31 +8,54 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/domain"
+	"github.com/walnuts1018/mucaron/backend/domain/entity"
+	"github.com/walnuts1018/mucaron/backend/tracer"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (h *Handler) GetMusics(c *gin.Context) {
-	user, err := h.getUser(c)
-	if err != nil {
-		if errors.Is(err, ErrLoginRequired) {
-			c.JSON(401, gin.H{
-				"error": "need login",
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "Handler.GetMusics")
+	defer span.End()
+
+	var user entity.User
+	{
+		_, span := tracer.Tracer.Start(ctx, "getUser")
+		defer span.End()
+
+		var err error
+		user, err = h.getUser(c)
+		if err != nil {
+			if errors.Is(err, ErrLoginRequired) {
+				c.JSON(401, gin.H{
+					"error": "need login",
+				})
+				return
+			}
+			slog.Error("failed to get user", slog.Any("error", err))
+			c.JSON(500, gin.H{
+				"error": "failed to get user",
 			})
 			return
 		}
-		slog.Error("failed to get user", slog.Any("error", err))
-		c.JSON(500, gin.H{
-			"error": "failed to get user",
-		})
-		return
 	}
 
-	musics, err := h.usecase.GetMusics(user)
-	if err != nil {
-		slog.Error("failed to get musics", slog.Any("error", err))
-		c.JSON(500, gin.H{
-			"error": "failed to get musics",
-		})
-		return
+	var musics []entity.Music
+	{
+		_, span := tracer.Tracer.Start(ctx, "GetMusics", trace.WithAttributes(
+			attribute.String("user_id", user.ID.String()),
+		))
+		defer span.End()
+
+		var err error
+		musics, err = h.usecase.GetMusics(user)
+		if err != nil {
+			slog.Error("failed to get musics", slog.Any("error", err))
+			c.JSON(500, gin.H{
+				"error": "failed to get musics",
+			})
+			return
+		}
 	}
 
 	c.JSON(200, gin.H{

@@ -1,4 +1,4 @@
-package main
+package tracer
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
-var tracer = otel.Tracer("github.com/walnuts1018/mucaron/backend")
+var Tracer = otel.Tracer("github.com/walnuts1018/mucaron/backend")
 
 func NewTracerProvider(ctx context.Context) (func(), error) {
 	exporter, err := otlptracegrpc.New(ctx)
