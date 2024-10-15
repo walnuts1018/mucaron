@@ -83,11 +83,11 @@ func (p *PostgresClient) GetMusicIDsByUserID(ctx context.Context, userID uuid.UU
 	return ids, nil
 }
 
-func (p *PostgresClient) CreateMusicWithDependencies(ctx context.Context, m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error {
+func (p *PostgresClient) CreateMusicWithDependencies(ctx context.Context, userID uuid.UUID, m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error {
 	return p.DB(ctx).Transaction(func(tx *gorm.DB) error {
 		if artist != nil {
 			// 同名のArtistが存在しない場合は新規作成
-			if err := tx.Where("owner_id = ? AND name = ?", artist.OwnerID, artist.Name).Attrs(*artist).FirstOrCreate(artist).Error; err != nil {
+			if err := tx.Where("owner_id = ? AND name = ?", userID, artist.Name).Attrs(*artist).FirstOrCreate(artist).Error; err != nil {
 				return fmt.Errorf("failed to create artist: %w", err)
 			}
 			m.Artists = []entity.Artist{*artist}
@@ -95,14 +95,14 @@ func (p *PostgresClient) CreateMusicWithDependencies(ctx context.Context, m enti
 
 		if genre != nil {
 			// 同名のGenreが存在しない場合は新規作成
-			if err := tx.Where("owner_id = ? AND name = ?", genre.OwnerID, genre.Name).Attrs(*genre).FirstOrCreate(genre).Error; err != nil {
+			if err := tx.Where("owner_id = ? AND name = ?", userID, genre.Name).Attrs(*genre).FirstOrCreate(genre).Error; err != nil {
 				return fmt.Errorf("failed to create genre: %w", err)
 			}
 			m.GenreID = &genre.ID
 		}
 
 		var existingMusic entity.Music
-		if err := tx.Unscoped().Preload(clause.Associations).Where("owner_id = ? AND file_hash = ?", m.OwnerID, m.FileHash).First(&existingMusic).Error; err != nil {
+		if err := tx.Unscoped().Preload(clause.Associations).Where("owner_id = ? AND file_hash = ?", userID, m.FileHash).First(&existingMusic).Error; err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				return fmt.Errorf("failed to get music by filehash: %w", err)
 			}
@@ -127,7 +127,7 @@ func (p *PostgresClient) CreateMusicWithDependencies(ctx context.Context, m enti
 		if album != nil {
 			album.Musics = []entity.Music{m}
 			// 同名のAlbumが存在しない場合は新規作成
-			if err := tx.Where("owner_id = ? AND name = ?", album.OwnerID, album.Name).Attrs(*album).FirstOrCreate(album).Error; err != nil {
+			if err := tx.Where("owner_id = ? AND name = ?", userID, album.Name).Attrs(*album).FirstOrCreate(album).Error; err != nil {
 				return fmt.Errorf("failed to create album: %w", err)
 			}
 		}
