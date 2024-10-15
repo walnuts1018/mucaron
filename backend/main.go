@@ -8,6 +8,7 @@ import (
 
 	"github.com/walnuts1018/mucaron/backend/config"
 	"github.com/walnuts1018/mucaron/backend/domain/logger"
+	"github.com/walnuts1018/mucaron/backend/tracer"
 	"github.com/walnuts1018/mucaron/backend/wire"
 )
 
@@ -23,7 +24,7 @@ func main() {
 	logger.CreateAndSetLogger(cfg.LogLevel, cfg.LogType)
 
 	ctx := context.Background()
-	close, err := NewTracerProvider(ctx)
+	close, err := tracer.NewTracerProvider(ctx)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create tracer provider: %v", err))
 	}
