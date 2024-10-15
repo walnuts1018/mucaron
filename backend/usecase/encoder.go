@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -11,25 +12,30 @@ import (
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 )
 
+func (u *Usecase) encodeLockedSection(ctx context.Context, uploadedFilePath string, music entity.Music) (string, error) {
+	u.encodeMutex.Lock()
+	defer u.encodeMutex.Unlock()
+
+	if err := u.entityRepository.UpdateMusicStatus(ctx, music.ID, entity.VideoEncoding); err != nil {
+		return "", fmt.Errorf("failed to update music status: %w", err)
+	}
+
+	slog.Info("start encoding", slog.String("music_id", music.ID.String()))
+
+	outDir, err := u.encoder.Encode(music.ID.String(), uploadedFilePath, false)
+	if err != nil {
+		return "", fmt.Errorf("failed to encode: %w", err)
+	}
+	slog.Info("finish encoding", slog.String("music_id", music.ID.String()))
+	return outDir, nil
+}
+
 func (u *Usecase) encode(ctx context.Context, uploadedFilePath string, music entity.Music) {
-	var outDir string
-	// need lock
-	{
-		u.encodeMutex.Lock()
-		defer u.encodeMutex.Unlock()
-
-		if err := u.entityRepository.UpdateMusicStatus(ctx, music.ID, entity.VideoEncoding); err != nil {
-			slog.Error("failed to update music status", slog.Any("error", err), slog.String("music_id", music.ID.String()))
-		}
-
-		slog.Info("start encoding", slog.String("music_id", music.ID.String()))
-
-		var err error
-		outDir, err = u.encoder.Encode(music.ID.String(), uploadedFilePath, false)
-		if err != nil {
-			slog.Error("failed to encode", slog.String("music_id", music.ID.String()), slog.Any("error", err))
-		}
-		slog.Info("finish encoding", slog.String("music_id", music.ID.String()))
+	outDir, err := u.encodeLockedSection(ctx, uploadedFilePath, music)
+	if err != nil {
+		slog.Error("failed to encode", slog.String("music_id", music.ID.String()), slog.Any("error", err))
+		// status更新
+		return
 	}
 
 	encodedUploadedFilePath := strings.ReplaceAll(uploadedFilePath, uploadedExtension, encodedExtension)

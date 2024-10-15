@@ -38,12 +38,12 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 			sloggin.IgnorePath("/healthz"),
 		},
 	}))
-	r.Use(otelgin.Middleware(consts.ApplicationName))
 
 	r.Use(sessions.Sessions("default", sessionStore))
 
 	r.GET("/healthz", handler.Health)
 	apiv1 := r.Group("/api/v1")
+	apiv1.Use(otelgin.Middleware(consts.ApplicationName))
 	{
 		apiv1.POST("/create_user", handler.CreateUser)
 		apiv1.POST("/login", handler.Login)

@@ -6,11 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/walnuts1018/mucaron/backend/domain"
+	"github.com/walnuts1018/mucaron/backend/tracer"
 )
 
 func (h *Handler) Upload(c *gin.Context) {
-	slog.Debug("upload music")
-	user, err := h.getUser(c)
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "Handler.Upload")
+	defer span.End()
+
+	user, err := h.getUser(ctx, c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{

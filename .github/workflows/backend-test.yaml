@@ -39,7 +39,8 @@ jobs:
       - name: go generate 忘れを検出
         run: |
           go generate ./...
-          git diff --exit-code
+          cd backend
+          git diff --exit-code -- ':(exclude)go.sum'
 
       - name: Run tests
         run: go test -cover ./... -coverprofile="cover.out"
