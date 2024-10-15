@@ -10,8 +10,8 @@ RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
     go mod download -x
 
 COPY . .
-RUN --mount=type=cache,target=/go/pkg/mod/ \
-    --mount=type=cache,target=/root/.cache/go-build/ \
+RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
+    --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
     CGO_ENABLED=0 GOOS=linux go build -o main /$ROOT && chmod +x ./main
 
 FROM debian:bookworm-slim
