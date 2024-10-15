@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -15,16 +16,16 @@ var (
 	ErrUserExists   = errors.New("user already exists")
 )
 
-func (u *Usecase) GetUserByID(id uuid.UUID) (entity.User, error) {
-	return u.entityRepository.GetUserByID(id)
+func (u *Usecase) GetUserByID(ctx context.Context, id uuid.UUID) (entity.User, error) {
+	return u.entityRepository.GetUserByID(ctx, id)
 }
 
-func (u *Usecase) GetUserByIDs(ids []uuid.UUID) ([]entity.User, error) {
-	return u.entityRepository.GetUserByIDs(ids)
+func (u *Usecase) GetUserByIDs(ctx context.Context, ids []uuid.UUID) ([]entity.User, error) {
+	return u.entityRepository.GetUserByIDs(ctx, ids)
 }
 
-func (u *Usecase) Login(userName string, inputPass entity.RawPassword) (entity.User, error) {
-	user, err := u.entityRepository.GetUserByName(userName)
+func (u *Usecase) Login(ctx context.Context, userName string, inputPass entity.RawPassword) (entity.User, error) {
+	user, err := u.entityRepository.GetUserByName(ctx, userName)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return entity.User{}, ErrUserNotFound
@@ -39,8 +40,8 @@ func (u *Usecase) Login(userName string, inputPass entity.RawPassword) (entity.U
 	}
 }
 
-func (u *Usecase) CreateUser(userName string, inputPass entity.RawPassword) (entity.User, error) {
-	validUser, err := u.IsValidUserName(userName)
+func (u *Usecase) CreateUser(ctx context.Context, userName string, inputPass entity.RawPassword) (entity.User, error) {
+	validUser, err := u.IsValidUserName(ctx, userName)
 	if err != nil {
 		return entity.User{}, fmt.Errorf("failed to check user name: %w", err)
 	}
@@ -59,15 +60,15 @@ func (u *Usecase) CreateUser(userName string, inputPass entity.RawPassword) (ent
 		return entity.User{}, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	if err := u.entityRepository.CreateUser(user); err != nil {
+	if err := u.entityRepository.CreateUser(ctx, user); err != nil {
 		return entity.User{}, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return user, nil
 }
 
-func (u *Usecase) IsValidUserName(userName string) (bool, error) {
-	_, err := u.entityRepository.GetUserByName(userName)
+func (u *Usecase) IsValidUserName(ctx context.Context, userName string) (bool, error) {
+	_, err := u.entityRepository.GetUserByName(ctx, userName)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return true, nil

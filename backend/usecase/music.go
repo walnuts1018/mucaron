@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -9,10 +10,26 @@ import (
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 )
 
-func (u *Usecase) DeleteMusics(user entity.User, ids []uuid.UUID) error {
+func (u *Usecase) GetMusics(ctx context.Context, user entity.User) ([]entity.Music, error) {
+	musics, err := u.entityRepository.GetMusicsByUserID(ctx, user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get musics: %w", err)
+	}
+	return musics, nil
+}
+
+func (u *Usecase) GetMusicIDs(ctx context.Context, user entity.User) ([]uuid.UUID, error) {
+	ids, err := u.entityRepository.GetMusicIDsByUserID(ctx, user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get music ids: %w", err)
+	}
+	return ids, nil
+}
+
+func (u *Usecase) DeleteMusics(ctx context.Context, user entity.User, ids []uuid.UUID) error {
 	slog.Debug("delete musics", slog.Any("ids", ids))
 
-	musics, err := u.entityRepository.GetMusicByIDs(ids)
+	musics, err := u.entityRepository.GetMusicByIDs(ctx, ids)
 	if err != nil {
 		return fmt.Errorf("failed to get musics by ids: %w", err)
 	}
@@ -24,24 +41,8 @@ func (u *Usecase) DeleteMusics(user entity.User, ids []uuid.UUID) error {
 		}
 	}
 
-	if err := u.entityRepository.DeleteMusics(ids); err != nil {
+	if err := u.entityRepository.DeleteMusics(ctx, ids); err != nil {
 		return fmt.Errorf("failed to delete musics: %w", err)
 	}
 	return nil
-}
-
-func (u *Usecase) GetMusics(user entity.User) ([]entity.Music, error) {
-	musics, err := u.entityRepository.GetMusicsByUserID(user.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get musics: %w", err)
-	}
-	return musics, nil
-}
-
-func (u *Usecase) GetMusicIDs(user entity.User) ([]uuid.UUID, error) {
-	ids, err := u.entityRepository.GetMusicIDsByUserID(user.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get music ids: %w", err)
-	}
-	return ids, nil
 }

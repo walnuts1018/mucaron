@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -12,33 +13,33 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (p *PostgresClient) CreateMusic(m entity.Music) error {
-	result := p.db.Create(&m)
+func (p *PostgresClient) CreateMusic(ctx context.Context, m entity.Music) error {
+	result := p.DB(ctx).Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("failed to create: %w", result.Error)
 	}
 	return nil
 }
 
-func (p *PostgresClient) UpdateMusic(m entity.Music) error {
-	result := p.db.Save(&m)
+func (p *PostgresClient) UpdateMusic(ctx context.Context, m entity.Music) error {
+	result := p.DB(ctx).Save(&m)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update: %w", result.Error)
 	}
 	return nil
 }
 
-func (p *PostgresClient) UpdateMusicStatus(musicID uuid.UUID, status entity.MusicStatus) error {
-	result := p.db.Model(&entity.Music{}).Where("id = ?", musicID).Update("status", status)
+func (p *PostgresClient) UpdateMusicStatus(ctx context.Context, musicID uuid.UUID, status entity.MusicStatus) error {
+	result := p.DB(ctx).Model(&entity.Music{}).Where("id = ?", musicID).Update("status", status)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update music status: %w", result.Error)
 	}
 	return nil
 }
 
-func (p *PostgresClient) DeleteMusics(musicIDs []uuid.UUID) error {
+func (p *PostgresClient) DeleteMusics(ctx context.Context, musicIDs []uuid.UUID) error {
 	var deleted []entity.Music
-	result := p.db.Select(clause.Associations).Select("RawMetaData").Delete(&deleted, musicIDs)
+	result := p.DB(ctx).Select(clause.Associations).Select("RawMetaData").Delete(&deleted, musicIDs)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete: %w", result.Error)
 	}
@@ -46,45 +47,44 @@ func (p *PostgresClient) DeleteMusics(musicIDs []uuid.UUID) error {
 	return nil
 }
 
-func (p *PostgresClient) GetMusicByID(id uuid.UUID) (entity.Music, error) {
+func (p *PostgresClient) GetMusicByID(ctx context.Context, id uuid.UUID) (entity.Music, error) {
 	var m entity.Music
-	result := p.db.Preload("Artists").First(&m, id)
+	result := p.DB(ctx).Preload("Artists").First(&m, id)
 	if result.Error != nil {
 		return entity.Music{}, fmt.Errorf("failed to get music by id: %w", result.Error)
 	}
 	return m, nil
 }
 
-func (p *PostgresClient) GetMusicByIDs(ids []uuid.UUID) ([]entity.Music, error) {
+func (p *PostgresClient) GetMusicByIDs(ctx context.Context, ids []uuid.UUID) ([]entity.Music, error) {
 	m := make([]entity.Music, 0, len(ids))
-	result := p.db.Preload("Artists").Find(&m, ids)
+	result := p.DB(ctx).Preload("Artists").Find(&m, ids)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get music by ids: %w", result.Error)
 	}
 	return m, nil
 }
 
-func (p *PostgresClient) GetMusicsByUserID(userID uuid.UUID) ([]entity.Music, error) {
+func (p *PostgresClient) GetMusicsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Music, error) {
 	m := make([]entity.Music, 0)
-	result := p.db.Preload("Artists").Where("owner_id = ?", userID).Find(&m)
+	result := p.DB(ctx).Preload("Artists").Where("owner_id = ?", userID).Find(&m)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get music by user id: %w", result.Error)
 	}
 	return m, nil
 }
 
-func (p *PostgresClient) GetMusicIDsByUserID(userID uuid.UUID) ([]uuid.UUID, error) {
+func (p *PostgresClient) GetMusicIDsByUserID(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
 	var ids []uuid.UUID
-	result := p.db.Model(&entity.Music{}).Where("owner_id = ?", userID).Pluck("id", &ids)
+	result := p.DB(ctx).Model(&entity.Music{}).Where("owner_id = ?", userID).Pluck("id", &ids)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get music ids by user id: %w", result.Error)
 	}
 	return ids, nil
 }
 
-
-func (p *PostgresClient) CreateMusicWithDependencies(m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error {
-	return p.db.Transaction(func(tx *gorm.DB) error {
+func (p *PostgresClient) CreateMusicWithDependencies(ctx context.Context, m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error {
+	return p.DB(ctx).Transaction(func(tx *gorm.DB) error {
 		if artist != nil {
 			// 同名のArtistが存在しない場合は新規作成
 			if err := tx.Where("owner_id = ? AND name = ?", artist.OwnerID, artist.Name).Attrs(*artist).FirstOrCreate(artist).Error; err != nil {
@@ -136,8 +136,8 @@ func (p *PostgresClient) CreateMusicWithDependencies(m entity.Music, album *enti
 	})
 }
 
-func (p *PostgresClient) UpdateMusicStatuses(musicIDs []uuid.UUID, status entity.MusicStatus) error {
-	result := p.db.Model(&entity.Music{}).Where("id IN ?", musicIDs).Update("status", status)
+func (p *PostgresClient) UpdateMusicStatuses(ctx context.Context, musicIDs []uuid.UUID, status entity.MusicStatus) error {
+	result := p.DB(ctx).Model(&entity.Music{}).Where("id IN ?", musicIDs).Update("status", status)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update music status: %w", result.Error)
 	}

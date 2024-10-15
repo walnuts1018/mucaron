@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -88,7 +89,7 @@ func setupTest(m *testing.M) error {
 		}
 
 		var err error
-		p, err = NewPostgres(cfg)
+		p, err = NewPostgres(context.Background(), cfg)
 		if err != nil {
 			return err
 		}

@@ -17,7 +17,7 @@ import (
 const maxAgeSecond = 7 * 24 * 60 * 60 // 1 week
 
 func (u *Usecase) GetPrimaryStreamM3U8URL(ctx context.Context, user entity.User, musicID uuid.UUID) (*url.URL, error) {
-	m, err := u.entityRepository.GetMusicByID(musicID)
+	m, err := u.entityRepository.GetMusicByID(ctx, musicID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get music by id: %w", err)
 	}
@@ -32,7 +32,7 @@ func (u *Usecase) GetStreamM3U8(ctx context.Context, user entity.User, musicID u
 	// streamIDの正規化
 	streamID = strings.TrimSuffix(streamID, ".m3u8")
 
-	m, err := u.entityRepository.GetMusicByID(musicID)
+	m, err := u.entityRepository.GetMusicByID(ctx, musicID)
 	if err != nil {
 		return "", fmt.Errorf("failed to get music by id: %w", err)
 	}

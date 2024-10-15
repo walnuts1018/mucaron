@@ -15,28 +15,28 @@ type EntityRepository interface {
 	musicRepository
 	userRepository
 
-	CreateMusicWithDependencies(m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error
+	CreateMusicWithDependencies(ctx context.Context, m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error
 }
 
 type musicRepository interface {
-	CreateMusic(m entity.Music) error
-	UpdateMusic(m entity.Music) error
-	UpdateMusicStatus(musicID uuid.UUID, status entity.MusicStatus) error
-	DeleteMusics(musicIDs []uuid.UUID) error
-	GetMusicByID(id uuid.UUID) (entity.Music, error)
-	GetMusicByIDs(ids []uuid.UUID) ([]entity.Music, error)
-	GetMusicsByUserID(userID uuid.UUID) ([]entity.Music, error)
-	GetMusicIDsByUserID(userID uuid.UUID) ([]uuid.UUID, error)
-	UpdateMusicStatuses(musicIDs []uuid.UUID, status entity.MusicStatus) error
+	CreateMusic(ctx context.Context, m entity.Music) error
+	UpdateMusic(ctx context.Context, m entity.Music) error
+	UpdateMusicStatus(ctx context.Context, musicID uuid.UUID, status entity.MusicStatus) error
+	DeleteMusics(ctx context.Context, musicIDs []uuid.UUID) error
+	GetMusicByID(ctx context.Context, id uuid.UUID) (entity.Music, error)
+	GetMusicByIDs(ctx context.Context, ids []uuid.UUID) ([]entity.Music, error)
+	GetMusicsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Music, error)
+	GetMusicIDsByUserID(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error)
+	UpdateMusicStatuses(ctx context.Context, musicIDs []uuid.UUID, status entity.MusicStatus) error
 }
 
 type userRepository interface {
-	CreateUser(u entity.User) error
-	UpdateUser(u entity.User) error
-	DeleteUser(u entity.User) error
-	GetUserByIDs(userIDs []uuid.UUID) ([]entity.User, error)
-	GetUserByID(userID uuid.UUID) (entity.User, error)
-	GetUserByName(userName string) (entity.User, error)
+	CreateUser(ctx context.Context, u entity.User) error
+	UpdateUser(ctx context.Context, u entity.User) error
+	DeleteUser(ctx context.Context, u entity.User) error
+	GetUserByIDs(ctx context.Context, userIDs []uuid.UUID) ([]entity.User, error)
+	GetUserByID(ctx context.Context, userID uuid.UUID) (entity.User, error)
+	GetUserByName(ctx context.Context, userName string) (entity.User, error)
 }
 
 type ObjectStorage interface {

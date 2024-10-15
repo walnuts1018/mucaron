@@ -18,7 +18,7 @@ func (u *Usecase) encode(ctx context.Context, uploadedFilePath string, music ent
 		u.encodeMutex.Lock()
 		defer u.encodeMutex.Unlock()
 
-		if err := u.entityRepository.UpdateMusicStatus(music.ID, entity.VideoEncoding); err != nil {
+		if err := u.entityRepository.UpdateMusicStatus(ctx, music.ID, entity.VideoEncoding); err != nil {
 			slog.Error("failed to update music status", slog.Any("error", err), slog.String("music_id", music.ID.String()))
 		}
 
@@ -72,7 +72,7 @@ func (u *Usecase) encode(ctx context.Context, uploadedFilePath string, music ent
 		// ファイル削除に失敗しても、アップロードは成功しているので、returnしない
 	}
 
-	if err := u.entityRepository.UpdateMusicStatus(music.ID, entity.VideoEncoded); err != nil {
+	if err := u.entityRepository.UpdateMusicStatus(ctx, music.ID, entity.VideoEncoded); err != nil {
 		slog.Error("failed to update music status", slog.Any("error", err), slog.String("music_id", music.ID.String()))
 	}
 }
@@ -114,7 +114,7 @@ func (u *Usecase) EncodeSuspended(ctx context.Context) error {
 			continue
 		}
 
-		music, err := u.entityRepository.GetMusicByID(id)
+		music, err := u.entityRepository.GetMusicByID(ctx, id)
 		if err != nil {
 			slog.Error("failed to get music by id", slog.String("music_id", id.String()), slog.Any("error", err))
 			// すでに削除されている / 無効なファイルを削除
@@ -146,7 +146,7 @@ func (u *Usecase) EncodeSuspended(ctx context.Context) error {
 	for i, music := range musics {
 		musicIDs[i] = music.ID
 	}
-	if err := u.entityRepository.UpdateMusicStatuses(musicIDs, entity.EncodeRetrying); err != nil {
+	if err := u.entityRepository.UpdateMusicStatuses(ctx, musicIDs, entity.EncodeRetrying); err != nil {
 		return err
 	}
 

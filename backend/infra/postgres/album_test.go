@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"testing"
 
 	"github.com/google/uuid"
@@ -98,26 +99,28 @@ var _ = Describe("Album", Ordered, func() {
 		},
 	}
 
+	ctx := context.Background()
+
 	BeforeAll(func() {
 		By("CreateUser")
-		err := p.CreateUser(user1)
+		err := p.CreateUser(ctx, user1)
 		Expect(err).NotTo(HaveOccurred())
 
 		By("CreateMusic")
-		err = p.CreateMusic(music1)
+		err = p.CreateMusic(ctx, music1)
 		Expect(err).NotTo(HaveOccurred())
-		err = p.CreateMusic(music2)
+		err = p.CreateMusic(ctx, music2)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
 	It("Album Normal CRUD", func() {
 		By("CreateAlbum")
-		err := p.CreateAlbum(album1)
+		err := p.CreateAlbum(ctx, album1)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(album1.ID).NotTo(Equal(uuid.Nil))
 
 		By("GetAlbum")
-		a, err := p.GetAlbumByID(album1.ID)
+		a, err := p.GetAlbumByID(ctx, album1.ID)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(a.ID).To(Equal(album1.ID))
 		Expect(a.Name).To(Equal(album1.Name))
@@ -125,22 +128,22 @@ var _ = Describe("Album", Ordered, func() {
 
 		By("UpdateAlbum")
 		album1.Name = "album1_updated"
-		err = p.UpdateAlbum(album1)
+		err = p.UpdateAlbum(ctx, album1)
 		Expect(err).NotTo(HaveOccurred())
 
 		By("GetAlbum")
-		a, err = p.GetAlbumByID(album1.ID)
+		a, err = p.GetAlbumByID(ctx, album1.ID)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(a.ID).To(Equal(album1.ID))
 		Expect(a.Name).To(Equal("album1_updated"))
 		Expect(a.Musics).To(HaveLen(len(album1.Musics)))
 
 		By("CreateAlbum 2")
-		err = p.CreateAlbum(album2)
+		err = p.CreateAlbum(ctx, album2)
 		Expect(err).NotTo(HaveOccurred())
 
 		By("GetAlbumByIDs")
-		albums, err := p.GetAlbumByIDs([]uuid.UUID{album1.ID, album2.ID})
+		albums, err := p.GetAlbumByIDs(ctx, []uuid.UUID{album1.ID, album2.ID})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(albums).To(HaveLen(2))
 		Expect(albums[0].ID).To(Equal(album1.ID))
@@ -149,16 +152,16 @@ var _ = Describe("Album", Ordered, func() {
 		Expect(albums[1].Musics).To(HaveLen(len(album2.Musics)))
 
 		By("DeleteAlbum")
-		err = p.DeleteAlbums([]entity.Album{album1, album2})
+		err = p.DeleteAlbums(ctx, []entity.Album{album1, album2})
 		Expect(err).NotTo(HaveOccurred())
 
 		By("GetAlbumByIDs")
-		albums, err = p.GetAlbumByIDs([]uuid.UUID{album1.ID, album2.ID})
+		albums, err = p.GetAlbumByIDs(ctx, []uuid.UUID{album1.ID, album2.ID})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(albums).To(BeEmpty())
 
 		By("Music should not be deleted")
-		musics, err := p.GetMusicByIDs([]uuid.UUID{music1.ID, music2.ID})
+		musics, err := p.GetMusicByIDs(ctx, []uuid.UUID{music1.ID, music2.ID})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(musics).To(HaveLen(2))
 		Expect(musics[0].ID).To(Equal(music1.ID))
@@ -168,24 +171,24 @@ var _ = Describe("Album", Ordered, func() {
 
 	It("GetAlbumByNameAndArtist", func() {
 		By("Delete all albums")
-		err := p.db.Unscoped().Where(("deleted_at IS NOT NULL")).Delete(&entity.Album{}).Error
+		err := p.DB(ctx).Unscoped().Where(("deleted_at IS NOT NULL")).Delete(&entity.Album{}).Error
 		Expect(err).NotTo(HaveOccurred())
 
 		By("CreateAlbum")
-		err = p.CreateAlbum(album1)
+		err = p.CreateAlbum(ctx, album1)
 		Expect(err).NotTo(HaveOccurred())
-		err = p.CreateAlbum(album2)
+		err = p.CreateAlbum(ctx, album2)
 		Expect(err).NotTo(HaveOccurred())
-		err = p.CreateAlbum(album2_dup)
+		err = p.CreateAlbum(ctx, album2_dup)
 		Expect(err).NotTo(HaveOccurred())
 
 		By("Create Check")
-		albums, err := p.GetAlbumByIDs([]uuid.UUID{album1.ID, album2.ID, album2_dup.ID})
+		albums, err := p.GetAlbumByIDs(ctx, []uuid.UUID{album1.ID, album2.ID, album2_dup.ID})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(albums).To(HaveLen(3))
 
 		By("GetAlbumByNameAndArtist")
-		albums, err = p.GetAlbumByNameAndArtist(user1.ID, album2.Name, artist2)
+		albums, err = p.GetAlbumByNameAndArtist(ctx, user1.ID, album2.Name, artist2)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(albums).To(HaveLen(1))
 		Expect(albums[0].ID).To(Equal(album2.ID))

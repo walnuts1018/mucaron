@@ -109,4 +109,3 @@ func (m *MinIO) GetObject(ctx context.Context, objectName string) (io.ReadCloser
 	}
 	return reader, nil
 }
-

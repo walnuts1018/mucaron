@@ -45,7 +45,7 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 	music.ID = id
 	music.FileHash = hash
 
-	if err := u.entityRepository.CreateMusicWithDependencies(music, album, artist, genre); err != nil {
+	if err := u.entityRepository.CreateMusicWithDependencies(ctx, music, album, artist, genre); err != nil {
 		return uuid.Nil, fmt.Errorf("failed to create music: %w", err)
 	}
 

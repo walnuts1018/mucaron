@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/walnuts1018/mucaron/backend/config"
@@ -9,13 +10,29 @@ import (
 	"gorm.io/gorm"
 )
 
-type PostgresClient struct {
+type dbController struct {
 	db *gorm.DB
+}
+
+func newDBController(db *gorm.DB) dbControllerInterface {
+	return &dbController{db: db}
+}
+
+func (c *dbController) DB(ctx context.Context) *gorm.DB {
+	return c.db
+}
+
+type dbControllerInterface interface {
+	DB(ctx context.Context) *gorm.DB
+}
+
+type PostgresClient struct {
+	dbControllerInterface
 }
 
 var Entities = []any{&entity.Album{}, &entity.Artist{}, &entity.Genre{}, &entity.Music{}, &entity.Playlist{}, &entity.User{}, &entity.RawMusicMetadata{}, &entity.RawMusicMetadataTag{}}
 
-func NewPostgres(cfg config.Config) (*PostgresClient, error) {
+func NewPostgres(ctx context.Context, cfg config.Config) (*PostgresClient, error) {
 	db, err := gorm.Open(postgresdriver.Open(cfg.PSQLDSN), &gorm.Config{
 		Logger: NewLogger(cfg),
 	})
@@ -24,10 +41,10 @@ func NewPostgres(cfg config.Config) (*PostgresClient, error) {
 	}
 
 	c := &PostgresClient{
-		db: db,
+		newDBController(db),
 	}
 
-	if err := c.db.AutoMigrate(Entities...); err != nil {
+	if err := c.DB(ctx).AutoMigrate(Entities...); err != nil {
 		return nil, fmt.Errorf("failed to automigrate: %v", err)
 	}
 
