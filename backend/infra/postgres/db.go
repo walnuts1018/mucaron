@@ -7,6 +7,7 @@ import (
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 	postgresdriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 type PostgresClient struct {
@@ -21,6 +22,10 @@ func NewPostgres(cfg config.Config) (*PostgresClient, error) {
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %v", err)
+	}
+
+	if err := db.Use(tracing.NewPlugin()); err != nil {
+		return nil, fmt.Errorf("failed to use tracing plugin: %v", err)
 	}
 
 	c := &PostgresClient{

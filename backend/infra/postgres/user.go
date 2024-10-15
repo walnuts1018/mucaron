@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -41,9 +42,9 @@ func (p *PostgresClient) GetUserByIDs(userIDs []uuid.UUID) ([]entity.User, error
 	return u, nil
 }
 
-func (p *PostgresClient) GetUserByID(userID uuid.UUID) (entity.User, error) {
+func (p *PostgresClient) GetUserByID(ctx context.Context, userID uuid.UUID) (entity.User, error) {
 	var u entity.User
-	result := p.db.First(&u, userID)
+	result := p.db.WithContext(ctx).First(&u, userID)
 	if result.Error != nil {
 		return entity.User{}, fmt.Errorf("failed to get user by id: %w", result.Error)
 	}

@@ -35,7 +35,7 @@ type userRepository interface {
 	UpdateUser(u entity.User) error
 	DeleteUser(u entity.User) error
 	GetUserByIDs(userIDs []uuid.UUID) ([]entity.User, error)
-	GetUserByID(userID uuid.UUID) (entity.User, error)
+	GetUserByID(ctx context.Context, userID uuid.UUID) (entity.User, error)
 	GetUserByName(userName string) (entity.User, error)
 }
 

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -15,8 +16,8 @@ var (
 	ErrUserExists   = errors.New("user already exists")
 )
 
-func (u *Usecase) GetUserByID(id uuid.UUID) (entity.User, error) {
-	return u.entityRepository.GetUserByID(id)
+func (u *Usecase) GetUserByID(ctx context.Context, id uuid.UUID) (entity.User, error) {
+	return u.entityRepository.GetUserByID(ctx, id)
 }
 
 func (u *Usecase) GetUserByIDs(ids []uuid.UUID) ([]entity.User, error) {
