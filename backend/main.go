@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -20,6 +21,13 @@ func main() {
 	}
 
 	logger.CreateAndSetLogger(cfg.LogLevel, cfg.LogType)
+
+	ctx := context.Background()
+	close, err := NewTracerProvider(ctx)
+	if err != nil {
+		slog.Error(fmt.Sprintf("failed to create tracer provider: %v", err))
+	}
+	defer close()
 
 	router, err := wire.CreateRouter(cfg)
 	if err != nil {

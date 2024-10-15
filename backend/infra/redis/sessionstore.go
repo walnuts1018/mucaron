@@ -16,7 +16,7 @@ func NewSessionStore(cfg config.Config) (sessions.Store, error) {
 		return nil, fmt.Errorf("failed to create redis store: %w", err)
 	}
 
-	slog.Info("created redis store", slog.String("session_secret", string(cfg.SessionSecret)))
+	slog.Info("created redis store")
 
 	return store, nil
 }
