@@ -45,7 +45,7 @@ services:
     image: node:20
     working_dir: /app
     command: >
-      bash -c "npm install && npm run dev"
+      bash -c "yarn && yarn dev"
     volumes:
       - source: ./frontend
         target: /app
@@ -98,6 +98,11 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    depends_on:
+      - frontend
+      - backend
+      - minio
+
 networks:
   default: {}
 
