@@ -20,7 +20,7 @@ func newDBController(db *gorm.DB) dbControllerInterface {
 }
 
 func (c *dbController) DB(ctx context.Context) *gorm.DB {
-	return c.db
+	return c.db.WithContext(ctx)
 }
 
 type dbControllerInterface interface {
