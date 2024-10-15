@@ -6,14 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/walnuts1018/mucaron/backend/domain"
-	"github.com/walnuts1018/mucaron/backend/tracer"
 )
 
 func (h *Handler) Upload(c *gin.Context) {
-	ctx, span := tracer.Tracer.Start(c.Request.Context(), "Handler.Upload")
-	defer span.End()
-
-	user, err := h.getUser(ctx, c)
+	user, err := h.getUser(c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
@@ -45,7 +41,7 @@ func (h *Handler) Upload(c *gin.Context) {
 		return
 	}
 
-	musicID, err := h.usecase.UploadMusic(c.Request.Context(), user, f, fh.Filename)
+	musicID, err := h.usecase.UploadMusic(c, user, f, fh.Filename)
 	if err != nil {
 		if errors.Is(err, domain.ErrAlreadyExists) {
 			c.JSON(400, gin.H{

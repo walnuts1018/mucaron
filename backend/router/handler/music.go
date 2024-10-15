@@ -11,7 +11,7 @@ import (
 )
 
 func (h *Handler) GetMusics(c *gin.Context) {
-	user, err := h.getUser(c.Request.Context(), c)
+	user, err := h.getUser(c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
@@ -26,7 +26,7 @@ func (h *Handler) GetMusics(c *gin.Context) {
 		return
 	}
 
-	musics, err := h.usecase.GetMusics(c.Request.Context(), user)
+	musics, err := h.usecase.GetMusics(c, user)
 	if err != nil {
 		slog.Error("failed to get musics", slog.Any("error", err))
 		c.JSON(500, gin.H{
@@ -49,7 +49,7 @@ type DeleteMusicsRequest struct {
 }
 
 func (h *Handler) DeleteMusics(c *gin.Context) {
-	user, err := h.getUser(c.Request.Context(), c)
+	user, err := h.getUser(c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
@@ -90,7 +90,7 @@ func (h *Handler) DeleteMusics(c *gin.Context) {
 		uuids = append(uuids, u)
 	}
 
-	if err := h.usecase.DeleteMusics(c.Request.Context(), user, uuids); err != nil {
+	if err := h.usecase.DeleteMusics(c, user, uuids); err != nil {
 		if errors.Is(err, domain.ErrAccessDenied) {
 			c.JSON(403, gin.H{
 				"error": "access denied",
@@ -124,7 +124,7 @@ func (h *Handler) RedirectMusicPrimaryStream(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUser(c.Request.Context(), c)
+	user, err := h.getUser(c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
@@ -139,7 +139,7 @@ func (h *Handler) RedirectMusicPrimaryStream(c *gin.Context) {
 		return
 	}
 
-	url, err := h.usecase.GetPrimaryStreamM3U8URL(c.Request.Context(), user, musicUUID)
+	url, err := h.usecase.GetPrimaryStreamM3U8URL(c, user, musicUUID)
 	if err != nil {
 		if errors.Is(err, domain.ErrAccessDenied) {
 			c.JSON(403, gin.H{
@@ -174,7 +174,7 @@ func (h *Handler) GetMusicStream(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUser(c.Request.Context(), c)
+	user, err := h.getUser(c)
 	if err != nil {
 		if errors.Is(err, ErrLoginRequired) {
 			c.JSON(401, gin.H{
@@ -197,7 +197,7 @@ func (h *Handler) GetMusicStream(c *gin.Context) {
 		return
 	}
 
-	body, err := h.usecase.GetStreamM3U8(c.Request.Context(), user, musicUUID, streamID)
+	body, err := h.usecase.GetStreamM3U8(c, user, musicUUID, streamID)
 	if err != nil {
 		if errors.Is(err, domain.ErrAccessDenied) {
 			c.JSON(403, gin.H{

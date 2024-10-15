@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -35,7 +34,7 @@ func NewHandler(config config.Config, usecase *usecase.Usecase) (Handler, error)
 	}, nil
 }
 
-func (h *Handler) getUser(ctx context.Context, c *gin.Context) (entity.User, error) {
+func (h *Handler) getUser(c *gin.Context) (entity.User, error) {
 	session := sessions.Default(c)
 	userIDStr, ok := session.Get(UserIDSessionKey).(string)
 	if !ok || userIDStr == "" {
@@ -52,7 +51,7 @@ func (h *Handler) getUser(ctx context.Context, c *gin.Context) (entity.User, err
 		return entity.User{}, err
 	}
 
-	user, err := h.usecase.GetUserByID(ctx, userID)
+	user, err := h.usecase.GetUserByID(c, userID)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			slog.Info("failed to get user by id",
