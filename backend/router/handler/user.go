@@ -28,7 +28,7 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.usecase.CreateUser(c, userName, entity.RawPassword(inputPassword))
+	user, err := h.usecase.CreateUser(c.Request.Context(), userName, entity.RawPassword(inputPassword))
 	if err != nil {
 		if errors.Is(err, usecase.ErrUserExists) {
 			c.JSON(400, gin.H{

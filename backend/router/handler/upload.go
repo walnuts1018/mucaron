@@ -41,7 +41,7 @@ func (h *Handler) Upload(c *gin.Context) {
 		return
 	}
 
-	musicID, err := h.usecase.UploadMusic(c, user, f, fh.Filename)
+	musicID, err := h.usecase.UploadMusic(c.Request.Context(), user, f, fh.Filename)
 	if err != nil {
 		if errors.Is(err, domain.ErrAlreadyExists) {
 			c.JSON(400, gin.H{

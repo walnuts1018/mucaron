@@ -11,7 +11,7 @@ import (
 func (h *Handler) Login(c *gin.Context) {
 	userName := c.PostForm("user_name")
 	inputPassword := c.PostForm("password")
-	user, err := h.usecase.Login(c, userName, entity.RawPassword(inputPassword))
+	user, err := h.usecase.Login(c.Request.Context(), userName, entity.RawPassword(inputPassword))
 	if err != nil {
 		slog.Error("failed to login", slog.Any("error", err), slog.String("user_name", userName))
 		c.JSON(401, gin.H{

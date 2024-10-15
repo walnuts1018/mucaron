@@ -18,7 +18,6 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 	}
 
 	r := gin.New()
-	r.ContextWithFallback = true
 	r.Use(gin.Recovery())
 	r.Use(sloggin.NewWithConfig(slog.Default(), sloggin.Config{
 		DefaultLevel:     config.LogLevel,

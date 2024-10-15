@@ -51,7 +51,7 @@ func (h *Handler) getUser(c *gin.Context) (entity.User, error) {
 		return entity.User{}, err
 	}
 
-	user, err := h.usecase.GetUserByID(c, userID)
+	user, err := h.usecase.GetUserByID(c.Request.Context(), userID)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			slog.Info("failed to get user by id",
