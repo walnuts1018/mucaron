@@ -7,6 +7,7 @@
 package wire
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 	"github.com/walnuts1018/mucaron/backend/config"
@@ -22,8 +23,8 @@ import (
 
 // Injectors from wire.go:
 
-func CreateRouter(cfg config.Config) (*gin.Engine, error) {
-	postgresClient, err := postgres.NewPostgres(cfg)
+func CreateRouter(ctx context.Context, cfg config.Config) (*gin.Engine, error) {
+	postgresClient, err := postgres.NewPostgres(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
