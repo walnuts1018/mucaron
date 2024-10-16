@@ -9,8 +9,7 @@ import (
 func ReaderHash(r io.Reader) (string, error) {
 	hash := sha256.New()
 	if _, err := io.Copy(hash, r); err != nil {
-		return "", fmt.Errorf("failed to copy file: %w", err)
+		return "", fmt.Errorf("failed to copy: %w", err)
 	}
-
 	return fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
