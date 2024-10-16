@@ -34,7 +34,7 @@ jobs:
       - name: go generate 忘れを検出
         run: |
           go generate ./...
-          git diff --exit-code -- ':(exclude)go.sum
+          git diff --exit-code -- ':(exclude)go.sum'
 
       - name: go build
         run: go build .
