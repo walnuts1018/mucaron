@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -43,6 +44,14 @@ type Config struct {
 	// -------------------------------------------------------
 
 	SessionSecret string `env:"SESSION_SECRET" envDefault:""`
+
+	SessionOptions SessionOptions
+}
+
+type SessionOptions struct {
+	SameSite http.SameSite `env:"SESSION_SAME_SITE" envDefault:"3"`
+	HttpOnly bool          `env:"SESSION_HTTP_ONLY" envDefault:"true"`
+	Secure   bool          `env:"SESSION_SECURE" envDefault:"true"`
 }
 
 func Load() (Config, error) {
@@ -52,6 +61,7 @@ func Load() (Config, error) {
 		FuncMap: map[reflect.Type]env.ParserFunc{
 			reflect.TypeOf(slog.Level(0)):    returnAny(ParseLogLevel),
 			reflect.TypeOf(time.Duration(0)): returnAny(time.ParseDuration),
+			reflect.TypeOf(http.SameSite(0)): returnAny(ParseSameSite),
 			reflect.TypeOf(LogType("")):      returnAny(ParseLogType),
 		},
 		OnSet: func(tag string, value any, isDefault bool) {
@@ -174,5 +184,19 @@ func ParseLogType(v string) (LogType, error) {
 	default:
 		slog.Warn("Invalid log type, use default type: json")
 		return LogTypeJSON, nil
+	}
+}
+
+func ParseSameSite(v string) (http.SameSite, error) {
+	switch strings.ToLower(v) {
+	case "strict":
+		return http.SameSiteStrictMode, nil
+	case "lax":
+		return http.SameSiteLaxMode, nil
+	case "none":
+		return http.SameSiteNoneMode, nil
+	default:
+		slog.Warn("Invalid SameSite, use default mode strict")
+		return http.SameSiteStrictMode, nil
 	}
 }

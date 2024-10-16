@@ -17,6 +17,7 @@ services:
       - "8080:8080"
     environment:
       LOG_LEVEL: debug
+      SERVER_ENDPOINT: "https://mucaron.local.walnuts.dev"
       PSQL_HOST: postgres
       PSQL_PORT: 5432
       PSQL_DATABASE: mucaron
@@ -26,11 +27,12 @@ services:
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: mockaccesskey
       MINIO_SECRET_KEY: mocksecretkey
+      MinIOUseSSL: "true"
       REDIS_HOST: redis
       REDIS_PASSWORD: "redispassword"
       SESSION_SECRET: "mock-session-secret-----"
       LOG_TYPE: "text"
-      MINIO_PUBLIC_ENDPOINT: "192.168.0.12:9000"
+      MINIO_PUBLIC_ENDPOINT: ""
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 30s
@@ -102,6 +104,19 @@ services:
       - frontend
       - backend
       - minio
+  https-proxy:
+    image: steveltn/https-portal:1.24
+    ports:
+      - "443:443"
+    volumes:
+      - ./certs:/var/lib/https-portal
+    networks:
+      - default
+    environment:
+      STAGE: local
+      CLIENT_MAX_BODY_SIZE: "1G"
+      DOMAINS: "mucaron.local.walnuts.dev -> http://backend:8080, minio.local.walnuts.dev -> http://minio:9000"
+    restart: always
 
 networks:
   default: {}

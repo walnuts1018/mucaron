@@ -104,7 +104,9 @@ func (h *Handler) DeleteMusics(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{
+		"ids": req.IDs,
+	})
 }
 
 func (h *Handler) RedirectMusicPrimaryStream(c *gin.Context) {

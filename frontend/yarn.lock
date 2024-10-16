@@ -51,7 +51,7 @@
 
 "@hatena/eslint-config-hatena@https://github.com/hatena/eslint-config-hatena.git#v3.1.2":
   version "3.1.2"
-  resolved "git+ssh://git@github.com/hatena/eslint-config-hatena.git#d255f2d92dd39e706c2d104ee068c75d955fa871"
+  resolved "https://github.com/hatena/eslint-config-hatena.git#d255f2d92dd39e706c2d104ee068c75d955fa871"
   dependencies:
     "@eslint/compat" "^1.2.0"
     "@eslint/js" "^9.12.0"

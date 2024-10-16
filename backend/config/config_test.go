@@ -2,6 +2,7 @@ package config
 
 import (
 	"log/slog"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
@@ -69,6 +70,22 @@ func TestLoad(t *testing.T) {
 			},
 			want: Config{
 				PSQLDSN: "host=host port=15432 user=user password=password dbname=db sslmode=sslmode TimeZone=timezone",
+			},
+			wantErr: false,
+		},
+		{
+			name: "check SessionOptions",
+			envs: map[string]string{
+				"SESSION_SAME_SITE": "lax",
+				"SESSION_SECURE":    "true",
+				"SESSION_HTTP_ONLY": "true",
+			},
+			want: Config{
+				SessionOptions: SessionOptions{
+					SameSite: http.SameSiteLaxMode,
+					Secure:   true,
+					HttpOnly: true,
+				},
 			},
 			wantErr: false,
 		},

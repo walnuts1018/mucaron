@@ -2,7 +2,6 @@ package router
 
 import (
 	"log/slog"
-	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -39,7 +38,6 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 		},
 	}))
 
-        sessionStore.Options(sessions.Options{SameSite: http.SameSiteStrictMode})
 	r.Use(sessions.Sessions("default", sessionStore))
 
 	r.GET("/healthz", handler.Health)

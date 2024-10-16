@@ -26,7 +26,7 @@ type Music struct {
 	// ----------------------
 
 	// ----- raw data -----
-	RawMetaData RawMusicMetadata
+	RawMetaData RawMusicMetadata `json:"-"`
 
 	// ----- status -----
 	Status    MusicStatus

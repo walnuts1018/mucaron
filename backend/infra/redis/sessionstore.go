@@ -16,7 +16,16 @@ func NewSessionStore(cfg config.Config) (sessions.Store, error) {
 		return nil, fmt.Errorf("failed to create redis store: %w", err)
 	}
 
-	slog.Info("created redis store")
+	err, rs := redis.GetRedisStore(store)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get redis store: %w", err)
+	}
+
+	rs.Options.SameSite = cfg.SessionOptions.SameSite
+	rs.Options.HttpOnly = cfg.SessionOptions.HttpOnly
+	rs.Options.Secure = cfg.SessionOptions.Secure
+
+	slog.Debug("created redis store")
 
 	return store, nil
 }
