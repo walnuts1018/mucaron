@@ -15,7 +15,7 @@ type EntityRepository interface {
 	musicRepository
 	userRepository
 
-	CreateMusicWithDependencies(ctx context.Context, m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error
+	CreateMusicWithDependencies(ctx context.Context, userID uuid.UUID, m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error
 }
 
 type musicRepository interface {
