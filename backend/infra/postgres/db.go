@@ -11,6 +11,8 @@ import (
 	"gorm.io/plugin/opentelemetry/tracing"
 )
 
+type MucaronTransactionKey struct{}
+
 type dbController struct {
 	db *gorm.DB
 }
@@ -20,11 +22,43 @@ func newDBController(db *gorm.DB) dbControllerInterface {
 }
 
 func (c *dbController) DB(ctx context.Context) *gorm.DB {
+	if tx, ok := ctx.Value(MucaronTransactionKey{}).(*gorm.DB); ok {
+		return tx
+	}
+
 	return c.db.WithContext(ctx)
+}
+
+func (c *dbController) Transaction(ctx context.Context, f func(ctx context.Context) error) error {
+	tx := c.db.WithContext(ctx).Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if tx.Error != nil {
+		return fmt.Errorf("failed to begin transaction: %w", tx.Error)
+	}
+
+	ctx = context.WithValue(ctx, MucaronTransactionKey{}, tx)
+	if err := f(ctx); err != nil {
+		if rerr := tx.Rollback().Error; rerr != nil {
+			return fmt.Errorf("failed to rollback transaction: %w, original error: %v", rerr, err)
+		}
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }
 
 type dbControllerInterface interface {
 	DB(ctx context.Context) *gorm.DB
+	Transaction(ctx context.Context, f func(ctx context.Context) error) error
 }
 
 type PostgresClient struct {

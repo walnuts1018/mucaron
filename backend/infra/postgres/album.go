@@ -51,7 +51,7 @@ func (p *PostgresClient) GetAlbumByID(ctx context.Context, id uuid.UUID) (entity
 	return a, nil
 }
 
-func (p *PostgresClient) GetAlbumByNameAndArtist(ctx context.Context, ownerID uuid.UUID, albumName string, artist entity.Artist) ([]entity.Album, error) {
+func (p *PostgresClient) GetAlbumsByNameAndArtist(ctx context.Context, ownerID uuid.UUID, albumName string, artist entity.Artist) ([]entity.Album, error) {
 	albums := make([]entity.Album, 0)
 	result := p.DB(ctx).Preload(clause.Associations).Where("owner_id = ? AND name = ? AND id IN (?)", ownerID, albumName, p.DB(ctx).Table("album_musics").Select("album_id").Where("music_id IN (?)", p.DB(ctx).Table("music_artists").Select("music_id").Where("artist_id = ?", artist.ID))).Find(&albums)
 

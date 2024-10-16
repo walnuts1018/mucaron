@@ -74,6 +74,16 @@ func TestLoad(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "check PSQL_DSN",
+			envs: map[string]string{
+				"PSQL_DSN": "host=host port=15432 user=user password=password dbname=db sslmode=sslmode TimeZone=timezone",
+			},
+			want: Config{
+				PSQLDSN: "host=host port=15432 user=user password=password dbname=db sslmode=sslmode TimeZone=timezone",
+			},
+			wantErr: false,
+		},
+		{
 			name: "check SessionOptions",
 			envs: map[string]string{
 				"SESSION_SAME_SITE": "lax",

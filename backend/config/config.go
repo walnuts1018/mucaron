@@ -49,7 +49,7 @@ type Config struct {
 }
 
 type SessionOptions struct {
-	SameSite http.SameSite `env:"SESSION_SAME_SITE" envDefault:"3"`
+	SameSite http.SameSite `env:"SESSION_SAME_SITE" envDefault:"strict"`
 	HttpOnly bool          `env:"SESSION_HTTP_ONLY" envDefault:"true"`
 	Secure   bool          `env:"SESSION_SECURE" envDefault:"true"`
 }

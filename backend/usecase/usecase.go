@@ -14,8 +14,11 @@ import (
 type EntityRepository interface {
 	musicRepository
 	userRepository
+	artistRepository
+	genericRepository
+	albumRepository
 
-	CreateMusicWithDependencies(ctx context.Context, userID uuid.UUID, m entity.Music, album *entity.Album, artist *entity.Artist, genre *entity.Genre) error
+	Transaction(ctx context.Context, f func(ctx context.Context) error) error
 }
 
 type musicRepository interface {
@@ -23,9 +26,11 @@ type musicRepository interface {
 	UpdateMusic(ctx context.Context, m entity.Music) error
 	UpdateMusicStatus(ctx context.Context, musicID uuid.UUID, status entity.MusicStatus) error
 	DeleteMusics(ctx context.Context, musicIDs []uuid.UUID) error
+	HardDeleteMusic(ctx context.Context, music entity.Music) error
 	GetMusicByID(ctx context.Context, id uuid.UUID) (entity.Music, error)
 	GetMusicByIDs(ctx context.Context, ids []uuid.UUID) ([]entity.Music, error)
 	GetMusicsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Music, error)
+	GetMusicByFileHash(ctx context.Context, userID uuid.UUID, fileHash string, m *entity.Music) error
 	GetMusicIDsByUserID(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error)
 	UpdateMusicStatuses(ctx context.Context, musicIDs []uuid.UUID, status entity.MusicStatus) error
 }
@@ -37,6 +42,33 @@ type userRepository interface {
 	GetUserByIDs(ctx context.Context, userIDs []uuid.UUID) ([]entity.User, error)
 	GetUserByID(ctx context.Context, userID uuid.UUID) (entity.User, error)
 	GetUserByName(ctx context.Context, userName string) (entity.User, error)
+}
+
+type artistRepository interface {
+	CreateArtist(ctx context.Context, a entity.Artist) error
+	UpdateArtist(ctx context.Context, a entity.Artist) error
+	DeleteArtist(ctx context.Context, a entity.Artist) error
+	GetArtistByIDs(ctx context.Context, ids []uuid.UUID) ([]entity.Artist, error)
+	GetArtistByID(ctx context.Context, id uuid.UUID) (entity.Artist, error)
+	GetArtistByName(ctx context.Context, ownerID uuid.UUID, name string) (entity.Artist, error)
+}
+
+type genericRepository interface {
+	CreateGenre(ctx context.Context, g entity.Genre) error
+	UpdateGenre(ctx context.Context, g entity.Genre) error
+	DeleteGenre(ctx context.Context, g entity.Genre) error
+	GetGenreByIDs(ctx context.Context, ids []uuid.UUID) ([]entity.Genre, error)
+	GetGenreByID(ctx context.Context, id uuid.UUID) (entity.Genre, error)
+	GetGenreByName(ctx context.Context, ownerID uuid.UUID, name string) (entity.Genre, error)
+}
+
+type albumRepository interface {
+	CreateAlbum(ctx context.Context, a entity.Album) error
+	UpdateAlbum(ctx context.Context, a entity.Album) error
+	DeleteAlbums(ctx context.Context, a []entity.Album) error
+	GetAlbumByIDs(ctx context.Context, ids []uuid.UUID) ([]entity.Album, error)
+	GetAlbumByID(ctx context.Context, id uuid.UUID) (entity.Album, error)
+	GetAlbumsByNameAndArtist(ctx context.Context, ownerID uuid.UUID, albumName string, artist entity.Artist) ([]entity.Album, error)
 }
 
 type ObjectStorage interface {

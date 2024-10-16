@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"testing"
 
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
@@ -10,11 +9,6 @@ import (
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 	"github.com/walnuts1018/mucaron/backend/domain/entity/gormmodel"
 )
-
-func TestAlbum(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Album Suite")
-}
 
 var _ = Describe("Album", Ordered, func() {
 	user1 := entity.User{
@@ -169,7 +163,7 @@ var _ = Describe("Album", Ordered, func() {
 		Expect(musics[1].Name).To(Equal(music2.Name))
 	})
 
-	It("GetAlbumByNameAndArtist", func() {
+	It("GetAlbumsByNameAndArtist", func() {
 		By("Delete all albums")
 		err := p.DB(ctx).Unscoped().Where(("deleted_at IS NOT NULL")).Delete(&entity.Album{}).Error
 		Expect(err).NotTo(HaveOccurred())
@@ -187,8 +181,8 @@ var _ = Describe("Album", Ordered, func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(albums).To(HaveLen(3))
 
-		By("GetAlbumByNameAndArtist")
-		albums, err = p.GetAlbumByNameAndArtist(ctx, user1.ID, album2.Name, artist2)
+		By("GetAlbumsByNameAndArtist")
+		albums, err = p.GetAlbumsByNameAndArtist(ctx, user1.ID, album2.Name, artist2)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(albums).To(HaveLen(1))
 		Expect(albums[0].ID).To(Equal(album2.ID))

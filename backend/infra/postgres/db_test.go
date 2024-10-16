@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/walnuts1018/mucaron/backend/config"
@@ -28,6 +30,11 @@ func TestMain(m *testing.M) {
 		slog.Error("failed to setup test", slog.Any("error", err))
 		os.Exit(1)
 	}
+}
+
+func TestPostgres(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Postgres Suite")
 }
 
 func setupTest(m *testing.M) error {
