@@ -72,7 +72,7 @@ func (p *PostgresClient) GetMusicByIDs(ctx context.Context, ids []uuid.UUID) ([]
 
 func (p *PostgresClient) GetMusicsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Music, error) {
 	m := make([]entity.Music, 0)
-	result := p.DB(ctx).Preload("Artists").Where("owner_id = ?", userID).Find(&m)
+	result := p.DB(ctx).Preload("Artists").Preload("Genre").Where("owner_id = ?", userID).Find(&m)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get music by user id: %w", result.Error)
 	}
