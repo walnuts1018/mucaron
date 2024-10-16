@@ -10,8 +10,8 @@ import (
 )
 
 type LoginInfo struct {
-	HashedPassword string
-	Salt           string
+	HashedPassword string `json:"-"`
+	Salt           string `json:"-"`
 }
 
 func NewLoginInfo(rawPassword RawPassword) (LoginInfo, error) {

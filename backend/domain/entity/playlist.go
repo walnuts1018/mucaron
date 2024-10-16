@@ -7,7 +7,7 @@ import (
 
 type Playlist struct {
 	gormmodel.UUIDModel
-	OwnerID uuid.UUID
-	Owner   User    `gorm:"foreignKey:OwnerID"`
-	Musics  []Music `gorm:"many2many:playlist_musics;"`
+	OwnerID uuid.UUID `json:"-"`
+	Owner   User      `gorm:"foreignKey:OwnerID" json:"-"`
+	Musics  []Music   `gorm:"many2many:playlist_musics;"`
 }

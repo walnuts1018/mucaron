@@ -7,8 +7,8 @@ import (
 
 type Album struct {
 	gormmodel.UUIDModel
-	OwnerID  uuid.UUID
-	Owner    User `gorm:"foreignKey:OwnerID"`
+	OwnerID  uuid.UUID `json:"-"`
+	Owner    User      `gorm:"foreignKey:OwnerID" json:"-"`
 	Name     string
 	SortName *string
 	Musics   []Music `gorm:"many2many:album_musics;"`

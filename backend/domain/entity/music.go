@@ -9,7 +9,7 @@ import (
 
 type Music struct {
 	gormmodel.UUIDModel
-	OwnerID          uuid.UUID `gorm:"index:idx_musics_file_hash,unique"`
+	OwnerID          uuid.UUID `gorm:"index:idx_musics_file_hash,unique" json:"-"`
 	Owner            User      `gorm:"foreignKey:OwnerID;" json:"-"`
 	Name             string
 	SortName         *string

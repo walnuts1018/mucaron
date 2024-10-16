@@ -5,7 +5,7 @@ import "github.com/walnuts1018/mucaron/backend/domain/entity/gormmodel"
 type User struct {
 	gormmodel.UUIDModel
 	UserName  string
-	LoginInfo LoginInfo `gorm:"embedded"`
+	LoginInfo LoginInfo `gorm:"embedded" json:"-"`
 }
 
 func NewUser(userName string, loginInfo LoginInfo) (User, error) {

@@ -7,7 +7,7 @@ import (
 
 type Genre struct {
 	gormmodel.UUIDModel
-	OwnerID uuid.UUID
-	Owner   User   `gorm:"foreignKey:OwnerID"`
-	Name    string `json:"name"`
+	OwnerID uuid.UUID `json:"-"`
+	Owner   User      `gorm:"foreignKey:OwnerID" json:"-"`
+	Name    string    `json:"name"`
 }

@@ -7,8 +7,8 @@ import (
 
 type Artist struct {
 	gormmodel.UUIDModel
-	OwnerID  uuid.UUID
-	Owner    User    `gorm:"foreignKey:OwnerID"`
-	Name     string  `json:"name"`
-	SortName *string `json:"sort_name"`
+	OwnerID  uuid.UUID `json:"-"`
+	Owner    User      `gorm:"foreignKey:OwnerID" json:"-"`
+	Name     string    `json:"name"`
+	SortName *string   `json:"sort_name"`
 }
