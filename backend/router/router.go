@@ -38,6 +38,7 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 		},
 	}))
 
+ sessionStore.Options(sessions.Options{SameSite: http.SameSiteStrictMode})
 	r.Use(sessions.Sessions("default", sessionStore))
 
 	r.GET("/healthz", handler.Health)
