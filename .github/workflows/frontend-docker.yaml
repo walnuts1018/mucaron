@@ -19,14 +19,14 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
 
-      - name: Cache node_modules, .next/cache, .npm
+      - name: Cache node_modules, .next/cache
         uses: actions/cache@v4
         with:
           path: |
-            node_modules
-            .next
-            .npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+            frontend/node_modules
+            frontend/.next
+            frontend
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/yarn.lock') }}
 
       - name: setup-node
         uses: actions/setup-node@v4
