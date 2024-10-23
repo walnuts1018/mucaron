@@ -11,7 +11,7 @@ import (
 	"github.com/walnuts1018/mucaron/backend/domain/entity"
 )
 
-//go:generate go run -mod=mod go.uber.org/mock/mockgen -source=usecase.go -destination=mock/mock.go
+//go:generate go run -mod=mod go.uber.org/mock/mockgen -source=usecase.go -destination=mock_usecase/mock.go
 
 type EntityRepository interface {
 	musicRepository

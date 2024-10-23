@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/walnuts1018/mucaron/backend/config"
-	mock_usecase "github.com/walnuts1018/mucaron/backend/usecase/mock"
+	mock_usecase "github.com/walnuts1018/mucaron/backend/usecase/mock_usecase"
 	"go.uber.org/mock/gomock"
 )
 
