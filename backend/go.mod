@@ -7,7 +7,7 @@ toolchain go1.23.2
 require (
 	dario.cat/mergo v1.0.1
 	github.com/Code-Hex/synchro v0.5.2
-	github.com/air-verse/air v1.61.0
+	github.com/air-verse/air v1.61.1
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/gin-contrib/sessions v1.0.1
 	github.com/gin-gonic/gin v1.10.0
@@ -245,7 +245,7 @@ require (
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/stretchr/testify v1.9.0
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tdakkota/asciicheck v0.2.0 // indirect
 	github.com/tdewolff/parse/v2 v2.7.15 // indirect
