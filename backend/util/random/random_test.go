@@ -1,6 +1,7 @@
 package random
 
 import (
+	"errors"
 	"strconv"
 	"testing"
 )
@@ -15,10 +16,11 @@ func TestString(t *testing.T) {
 		length uint
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    want
-		wantErr bool
+		name      string
+		args      args
+		testValue []byte
+		want      want
+		wantErr   bool
 	}{
 		{
 			name: "normal",
@@ -44,9 +46,31 @@ func TestString(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "use TestValue",
+			args: args{
+				length: 10,
+				base:   AlphanumericSymbols,
+			},
+			testValue: []byte("0123456789"),
+			want: want{
+				length: 10,
+				f: func(got string) error {
+					if got != "wxyz012345" {
+						return errors.New("invalid value")
+					}
+					return nil
+				},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.testValue != nil {
+				SetTestValue(tt.testValue)
+			}
+
 			got, err := String(tt.args.length, tt.args.base)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("String() error = %v, wantErr %v", err, tt.wantErr)
@@ -58,7 +82,7 @@ func TestString(t *testing.T) {
 
 			if tt.want.f != nil {
 				if err := tt.want.f(got); err != nil {
-					t.Errorf(err.Error())
+					t.Error(err.Error())
 				}
 			}
 		})

@@ -13,9 +13,23 @@ const Alphabets = UpperLetters + LowerLetters
 const Alphanumeric = Alphabets + Numbers
 const AlphanumericSymbols = Alphanumeric + Symbols
 
+var testValue []byte = nil
+
+func SetTestValue(value []byte) {
+	testValue = value
+}
+
+func randRead(b []byte) (int, error) {
+	if testValue != nil {
+		copy(b, testValue)
+		return len(b), nil
+	}
+	return rand.Read(b)
+}
+
 func String(length uint, base string) (string, error) {
 	b := make([]byte, length)
-	if _, err := rand.Read(b); err != nil {
+	if _, err := randRead(b); err != nil {
 		return "", fmt.Errorf("failed to read random: %w", err)
 	}
 
@@ -28,7 +42,7 @@ func String(length uint, base string) (string, error) {
 
 func Byte(length int) ([]byte, error) {
 	b := make([]byte, length)
-	if _, err := rand.Read(b); err != nil {
+	if _, err := randRead(b); err != nil {
 		return nil, fmt.Errorf("failed to read random: %w", err)
 	}
 	return b, nil
