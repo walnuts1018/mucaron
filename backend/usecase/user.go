@@ -55,9 +55,13 @@ func (u *Usecase) CreateUser(ctx context.Context, userName string, inputPass ent
 		return entity.User{}, fmt.Errorf("failed to create login info: %w", err)
 	}
 
-	user, err := entity.NewUser(userName, loginInfo)
-	if err != nil {
-		return entity.User{}, fmt.Errorf("failed to create user: %w", err)
+	user := entity.User{
+		UserName:  userName,
+		LoginInfo: loginInfo,
+	}
+
+	if err := user.CreateID(); err != nil {
+		return entity.User{}, fmt.Errorf("failed to create user id: %w", err)
 	}
 
 	if err := u.entityRepository.CreateUser(ctx, user); err != nil {

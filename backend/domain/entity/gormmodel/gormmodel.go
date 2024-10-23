@@ -31,12 +31,11 @@ type UUIDModel struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func NewUUIDModel() (UUIDModel, error) {
+func (u *UUIDModel) CreateID() error {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return UUIDModel{}, err
+		return err
 	}
-	return UUIDModel{
-		ID: id,
-	}, nil
+	u.ID = id
+	return nil
 }

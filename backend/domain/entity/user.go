@@ -8,14 +8,3 @@ type User struct {
 	LoginInfo LoginInfo `gorm:"embedded" json:"-"`
 }
 
-func NewUser(userName string, loginInfo LoginInfo) (User, error) {
-	model, err := gormmodel.NewUUIDModel()
-	if err != nil {
-		return User{}, err
-	}
-	return User{
-		UUIDModel: model,
-		UserName:  userName,
-		LoginInfo: loginInfo,
-	}, nil
-}
