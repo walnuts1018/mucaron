@@ -13,6 +13,10 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
     },
+    fontFamily: {
+      Nunito: ["var(--font-Nunito)"],
+      Noto: ["var(--font-Noto)"],
+    },
   },
   plugins: [],
 };
