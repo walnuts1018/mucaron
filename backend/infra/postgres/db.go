@@ -65,7 +65,7 @@ type PostgresClient struct {
 	dbControllerInterface
 }
 
-var Entities = []any{&entity.Album{}, &entity.Artist{}, &entity.Genre{}, &entity.Music{}, &entity.Playlist{}, &entity.User{}, &entity.RawMusicMetadata{}, &entity.RawMusicMetadataTag{}}
+var entities = []any{&entity.Album{}, &entity.Artist{}, &entity.Genre{}, &entity.Music{}, &entity.Playlist{}, &entity.User{}, &entity.RawMusicMetadata{}, &entity.RawMusicMetadataTag{}}
 
 func NewPostgres(ctx context.Context, cfg config.Config) (*PostgresClient, error) {
 	db, err := gorm.Open(postgresdriver.Open(cfg.PSQLDSN), &gorm.Config{
@@ -83,7 +83,7 @@ func NewPostgres(ctx context.Context, cfg config.Config) (*PostgresClient, error
 		newDBController(db),
 	}
 
-	if err := c.DB(ctx).AutoMigrate(Entities...); err != nil {
+	if err := c.DB(ctx).AutoMigrate(entities...); err != nil {
 		return nil, fmt.Errorf("failed to automigrate: %v", err)
 	}
 
