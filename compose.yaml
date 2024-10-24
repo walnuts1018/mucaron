@@ -43,21 +43,22 @@ services:
       - postgres
       - minio
       - redis
-  frontend:
-    image: node:20
-    working_dir: /app
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.local
-    ports:
-      - "3000:3000"
-    develop:
-      watch:
-        - action: sync
-          path: ./frontend/src
-          target: /app/src
-        - action: rebuild
-          path: ./frontend/package.json
+  # Docker for WindowsでHot Reloadが動かないので、フロントエンドはローカルで動かす
+  # frontend:
+  #   image: node:20
+  #   working_dir: /app
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.local
+  #   ports:
+  #     - "3000:3000"
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./frontend/src
+  #         target: /app/src
+  #       - action: rebuild
+  #         path: ./frontend/package.json
 
   postgres:
     image: postgres:16
@@ -110,7 +111,6 @@ services:
       retries: 5
       start_period: 30s
     depends_on:
-      - frontend
       - backend
       - minio
 
