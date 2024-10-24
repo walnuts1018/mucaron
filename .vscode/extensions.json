@@ -3,6 +3,8 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
-    "golang.go"
+    "golang.go",
+    "lokalise.i18n-ally",
+    "inlang.vs-code-extension"
   ]
 }
