@@ -1,18 +1,28 @@
+import Form from "next/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { MdLogin } from "react-icons/md";
+import { useTranslations } from "next-intl";
+
 export default function Login() {
+  const t = useTranslations("Login");
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center h-screen">
       <h1>Login</h1>
-      <form>
+      <Form action="/api/v1/login" className="flex flex-col">
         <label>
-          ユーザー名
-          <input type="text" />
+          {t("username")}
+          <Input type="text" />
         </label>
         <label>
-          Password
-          <input type="password" />
+          {t("password")}
+          <Input type="password" />
         </label>
-        <button type="submit">Login</button>
-      </form>
+        <Button type="submit">
+          <MdLogin />
+          {t("signin")}
+        </Button>
+      </Form>
     </div>
   );
 }

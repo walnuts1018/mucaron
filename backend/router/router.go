@@ -50,7 +50,7 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 
 		music := apiv1.Group("/music")
 		{
-			music.GET("/", handler.GetMusics)
+			music.GET("", handler.GetMusics)
 			music.GET("/:id", handler.GetMusic)
 			music.GET("/:id/stream/:stream_id", handler.GetMusicStream)
 			music.GET("/:id/primary_stream", handler.RedirectMusicPrimaryStream)
@@ -60,9 +60,9 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 
 		playlist := apiv1.Group("/playlist")
 		{
-			playlist.GET("/", handler.GetPlaylists)
+			playlist.GET("", handler.GetPlaylists)
 			playlist.GET("/:id", handler.GetPlaylist)
-			playlist.POST("/", handler.CreatePlaylist)
+			playlist.POST("", handler.CreatePlaylist)
 			playlist.POST("/add", handler.AddMusicToPlaylist)
 			playlist.PATCH("/:id", handler.UpdatePlaylist)
 			playlist.POST("/delete", handler.DeletePlaylists)

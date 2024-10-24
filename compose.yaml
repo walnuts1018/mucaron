@@ -32,7 +32,7 @@ services:
       REDIS_PASSWORD: "redispassword"
       SESSION_SECRET: "mock-session-secret-----"
       LOG_TYPE: "text"
-      MINIO_PUBLIC_ENDPOINT: ""
+      MINIO_PUBLIC_ENDPOINT: "https://minio.local.walnuts.dev"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 30s
@@ -43,17 +43,23 @@ services:
       - postgres
       - minio
       - redis
-  frontend:
-    image: node:20
-    working_dir: /app
-    command: >
-      bash -c "yarn && yarn dev"
-    volumes:
-      - source: ./frontend
-        target: /app
-        type: bind
-    ports:
-      - "3000:3000"
+  # Docker for WindowsでHot Reloadが動かないので、フロントエンドはローカルで動かす
+  # frontend:
+  #   image: node:20
+  #   working_dir: /app
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.local
+  #   ports:
+  #     - "3000:3000"
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./frontend/src
+  #         target: /app/src
+  #       - action: rebuild
+  #         path: ./frontend/package.json
+
   postgres:
     image: postgres:16
     ports:
@@ -87,10 +93,14 @@ services:
     image: nginx:1.27
     ports:
       - "80:80"
+      - "443:443"
       - "9000:9000"
     volumes:
       - source: ./nginx
         target: /etc/nginx/conf.d
+        type: bind
+      - source: ./certs
+        target: /etc/certs
         type: bind
     networks:
       - default
@@ -101,22 +111,8 @@ services:
       retries: 5
       start_period: 30s
     depends_on:
-      - frontend
       - backend
       - minio
-  https-proxy:
-    image: steveltn/https-portal:1.24
-    ports:
-      - "443:443"
-    volumes:
-      - ./certs:/var/lib/https-portal
-    networks:
-      - default
-    environment:
-      STAGE: local
-      CLIENT_MAX_BODY_SIZE: "1G"
-      DOMAINS: "mucaron.local.walnuts.dev -> http://backend:8080, minio.local.walnuts.dev -> http://minio:9000"
-    restart: always
 
 networks:
   default: {}

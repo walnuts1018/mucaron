@@ -7,6 +7,7 @@ import (
 	"github.com/Code-Hex/synchro"
 	"github.com/Code-Hex/synchro/tz"
 	"github.com/google/uuid"
+	newuuid "github.com/walnuts1018/mucaron/backend/util/new_uuid"
 	"gorm.io/gorm"
 )
 
@@ -31,12 +32,11 @@ type UUIDModel struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func NewUUIDModel() (UUIDModel, error) {
-	id, err := uuid.NewV7()
+func (u *UUIDModel) CreateID() error {
+	id, err := newuuid.NewV7()
 	if err != nil {
-		return UUIDModel{}, err
+		return err
 	}
-	return UUIDModel{
-		ID: id,
-	}, nil
+	u.ID = id
+	return nil
 }

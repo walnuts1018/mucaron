@@ -21,6 +21,10 @@ func NewSessionStore(cfg config.Config) (sessions.Store, error) {
 		return nil, fmt.Errorf("failed to get redis store: %w", err)
 	}
 
+	if rs == nil {
+		return nil, fmt.Errorf("failed to get redis store")
+	}
+
 	rs.Options.SameSite = cfg.SessionOptions.SameSite
 	rs.Options.HttpOnly = cfg.SessionOptions.HttpOnly
 	rs.Options.Secure = cfg.SessionOptions.Secure

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Nunito, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 const NunitoFont = Nunito({
   subsets: ["latin"],
@@ -29,19 +31,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="ja">
+    <html lang={locale}>
       <head>
         <meta name="msapplication-TileColor" content="#feb4c1" />
         <meta name="theme-color" content="#feb4c1" />
       </head>
       <body className={`${NunitoFont.variable} ${NotoFont.variable} font-Noto`}>
-        {children}
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );
