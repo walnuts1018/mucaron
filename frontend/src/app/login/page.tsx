@@ -20,7 +20,7 @@ export default function Login() {
         </label>
         <Button type="submit">
           <MdLogin />
-          ログイン
+          {t("login")}
         </Button>
       </Form>
     </div>
