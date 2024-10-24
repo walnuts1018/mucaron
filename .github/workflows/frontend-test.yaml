@@ -28,3 +28,8 @@ jobs:
 
       - name: lint
         run: yarn lint
+
+      - name: yarn i18n忘れを検出
+        run: |
+          yarn i18n
+          git diff --exit-code -- ':(exclude)frontend/.next'

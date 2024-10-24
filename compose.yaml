@@ -54,10 +54,10 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./src
+          path: ./frontend/src
           target: /app/src
         - action: rebuild
-          path: ./package.json
+          path: ./frontend/package.json
 
   postgres:
     image: postgres:16
