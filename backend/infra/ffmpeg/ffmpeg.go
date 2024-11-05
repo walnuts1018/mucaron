@@ -51,7 +51,7 @@ func (f *FFMPEG) createArgs(id string, inputFileName string, audioOnly bool) ([]
 		"-i", inputFileName,
 		"-y",
 		"-hide_banner",
-		"-progress", "-",
+		"-progress",
 		"-preset", string(f.Preset),
 		"-keyint_min", "100",
 		"-g", "100",
@@ -60,6 +60,17 @@ func (f *FFMPEG) createArgs(id string, inputFileName string, audioOnly bool) ([]
 		"-c:v", f.VideoCodec,
 		"-pix_fmt", "yuv420p",
 	}
+
+// ffmpeg -i test_files/file_example_MP4_480_1_5MG.mp4 -y -hide_banner -progress - -preset medium -keyint_min 100 -g 100 -sc_threshold 0 -r 30 -c:v libx264 -c:a copy -pix_fmt yuv420p \
+// -map "v:0?" -filter:v:0 scale=-2:360 -b:v:0 365k -maxrate:0 390k -bufsize:0 640k \
+// -map "v:0?" -filter:v:1 scale=-2:720 -b:v:1 4.5M -maxrate:1 4.8M -bufsize:1 8M \
+// -map "v:0?" -filter:v:2 scale=-2:1080 -b:v:2 7.8M -maxrate:2 8.3M -bufsize:2 14M \
+// -map 0:a \
+// -init_seg_name init\$RepresentationID\$.\$ext\$ -media_seg_name chunk\$RepresentationID\$-\$Number%05d\$.\$ext\$ \
+// -use_template 1 -use_timeline 1  \
+// -seg_duration 4 -adaptation_sets "id=0,streams=a id=1,streams=v" \
+// -f dash Dash/dash.mpd
+
 
 	if !audioOnly {
 		for i, quality := range f.VideoQualityKeys {

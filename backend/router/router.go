@@ -52,8 +52,8 @@ func NewRouter(config config.Config, handler handler.Handler, sessionStore sessi
 		{
 			music.GET("", handler.GetMusics)
 			music.GET("/:id", handler.GetMusic)
-			music.GET("/:id/stream/:stream_id", handler.GetMusicStream)
-			music.GET("/:id/primary_stream", handler.RedirectMusicPrimaryStream)
+			music.GET("/:id/dash.mpd", handler.GetMusicDash)
+			music.GET("/:id/:segment_filename", handler.GetMusicSegment)
 			music.PATCH("/metadata/:id", handler.UpdateMusicMetadata)
 			music.POST("/delete", handler.DeleteMusics)
 		}
