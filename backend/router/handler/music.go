@@ -216,3 +216,6 @@ func (h *Handler) GetMusicStream(c *gin.Context) {
 
 	c.Data(200, "application/vnd.apple.mpegurl", []byte(body))
 }
+
+func (h *Handler) GetMusicDash(c *gin.Context) {
+}

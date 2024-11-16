@@ -12,4 +12,4 @@ RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
 COPY . .
 
 EXPOSE 8080
-CMD ["air", "-c", ".air.toml"]
+CMD ["go", "run", "main.go"]
