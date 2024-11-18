@@ -75,17 +75,9 @@ type albumRepository interface {
 
 type ObjectStorage interface {
 	GetObjectURL(ctx context.Context, objectName string, cacheControl string) (*url.URL, error)
-	// GetObjectURLs(ctx context.Context, objectName []string, cacheControl string) ([]*url.URL, error)
-
 	GetObject(ctx context.Context, objectName string) (io.ReadCloser, error)
 	UploadObject(ctx context.Context, objectName string, data io.Reader, size int64) error
-	UploadDirectory(ctx context.Context, objectBaseDir string, localDir string) error
 	DeleteObject(ctx context.Context, objectName string) error
-}
-
-type Encoder interface {
-	Encode(id string, path string, audioOnly bool) (string, error)
-	GetOutDirPrefix() string
 }
 
 type MetadataReader interface {
@@ -95,7 +87,6 @@ type MetadataReader interface {
 type Usecase struct {
 	cfg              config.Config
 	entityRepository EntityRepository
-	encoder          Encoder
 	metadataReader   MetadataReader
 	objectStorage    ObjectStorage
 
@@ -105,22 +96,15 @@ type Usecase struct {
 func NewUsecase(
 	cfg config.Config,
 	entityRepository EntityRepository,
-	encoder Encoder,
 	metadataReader MetadataReader,
 	objectStorage ObjectStorage,
-) (*Usecase, error) {
+) *Usecase {
 	u := Usecase{
 		cfg,
 		entityRepository,
-		encoder,
 		metadataReader,
 		objectStorage,
 		sync.Mutex{},
 	}
-
-	if err := u.EncodeSuspended(context.Background()); err != nil {
-		return nil, err
-	}
-
-	return &u, nil
+	return &u
 }
