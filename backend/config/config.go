@@ -38,6 +38,10 @@ type Config struct {
 	RedisPassword string `env:"REDIS_PASSWORD,required"`
 	RedisDB       int    `env:"REDIS_DB" envDefault:"0"`
 
+	// ------------------------ MpegDash ------------------------
+	MpegDashServerEndpoint string `env:"MPEG_DASH_SERVER_ENDPOINT" envDefault:"http://localhost:8081"`
+	MpegDashAdminToken     string `env:"MPEG_DASH_ADMIN_TOKEN,required"`
+
 	SessionSecret  string `env:"SESSION_SECRET" envDefault:""`
 	SessionOptions SessionOptions
 }
