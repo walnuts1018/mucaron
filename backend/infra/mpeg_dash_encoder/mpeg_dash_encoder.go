@@ -1,19 +1,25 @@
-package mpegdash
+package mpegdashencoder
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 
 	"github.com/google/uuid"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/walnuts1018/mucaron/backend/config"
 )
 
 type Controller struct {
 	serverEndpoint url.URL
 	adminToken     string
+
+	minioClient             *minio.Client
+	minioSourceUploadBucket string
 }
 
 func NewController(cfg config.Config) (*Controller, error) {
@@ -22,9 +28,19 @@ func NewController(cfg config.Config) (*Controller, error) {
 		return nil, err
 	}
 
+	minioClient, err := minio.New(cfg.MinIOEndpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(cfg.MinIOAccessKey, cfg.MinIOSecretKey, ""),
+		Secure: cfg.MinIOUseSSL,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create minio client: %w", err)
+	}
+
 	return &Controller{
-		serverEndpoint: *endpoint,
-		adminToken:     cfg.MpegDashAdminToken,
+		serverEndpoint:          *endpoint,
+		adminToken:              cfg.MpegDashAdminToken,
+		minioClient:             minioClient,
+		minioSourceUploadBucket: cfg.MinIOSourceUploadBucket,
 	}, nil
 }
 
@@ -67,4 +83,19 @@ func (c *Controller) GetUserToken(mediaIDs []uuid.UUID) (string, error) {
 	}
 
 	return respBody.Token, nil
+}
+
+func (c *Controller) UploadMedia(ctx context.Context, mediaID uuid.UUID, filePath string) error {
+	_, err := c.minioClient.FPutObject(
+		ctx,
+		c.minioSourceUploadBucket,
+		mediaID.String(),
+		filePath,
+		minio.PutObjectOptions{},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to upload media: %w", err)
+	}
+
+	return nil
 }
