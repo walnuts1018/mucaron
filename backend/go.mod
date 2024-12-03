@@ -29,7 +29,7 @@ require (
 	golang.org/x/crypto v0.29.0
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.0
-	gorm.io/driver/postgres v1.5.10
+	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
 )
 
