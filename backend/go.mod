@@ -2,7 +2,7 @@ module github.com/walnuts1018/mucaron/backend
 
 go 1.23
 
-toolchain go1.23.2
+toolchain go1.23.4
 
 require (
 	dario.cat/mergo v1.0.1
