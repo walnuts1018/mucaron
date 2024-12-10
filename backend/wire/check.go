@@ -1,7 +1,6 @@
 package wire
 
 import (
-	"github.com/walnuts1018/mucaron/backend/infra/ffmpeg"
 	"github.com/walnuts1018/mucaron/backend/infra/ffprobe"
 	"github.com/walnuts1018/mucaron/backend/infra/minio"
 	"github.com/walnuts1018/mucaron/backend/infra/postgres"
@@ -9,8 +8,6 @@ import (
 )
 
 var _ usecase.EntityRepository = &postgres.PostgresClient{}
-
-var _ usecase.Encoder = &ffmpeg.FFMPEG{}
 
 var _ usecase.MetadataReader = ffprobe.FFProbe{}
 
