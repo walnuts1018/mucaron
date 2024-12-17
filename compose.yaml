@@ -6,9 +6,6 @@ services:
     working_dir: /app
     tty: true
     volumes:
-      - source: ./backend
-        target: /app
-        type: bind
       - target: /go/pkg/mod
         type: tmpfs
       - target: /root/.cache/go-build
@@ -43,23 +40,25 @@ services:
       - postgres
       - minio
       - redis
-  # Docker for WindowsでHot Reloadが動かないので、フロントエンドはローカルで動かす
-  # frontend:
-  #   image: node:20
-  #   working_dir: /app
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile.local
-  #   ports:
-  #     - "3000:3000"
-  #   develop:
-  #     watch:
-  #       - action: sync
-  #         path: ./frontend/src
-  #         target: /app/src
-  #       - action: rebuild
-  #         path: ./frontend/package.json
-
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend
+  frontend:
+    image: node:lts-bookworm-slim
+    working_dir: /app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local
+    ports:
+      - "3000:3000"
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+        - action: rebuild
+          path: ./frontend/package.json
   postgres:
     image: postgres:16
     ports:
