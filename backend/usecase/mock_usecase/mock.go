@@ -1258,20 +1258,6 @@ func (mr *MockObjectStorageMockRecorder) GetObjectURL(ctx, objectName, cacheCont
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetObjectURL", reflect.TypeOf((*MockObjectStorage)(nil).GetObjectURL), ctx, objectName, cacheControl)
 }
 
-// UploadDirectory mocks base method.
-func (m *MockObjectStorage) UploadDirectory(ctx context.Context, objectBaseDir, localDir string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadDirectory", ctx, objectBaseDir, localDir)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UploadDirectory indicates an expected call of UploadDirectory.
-func (mr *MockObjectStorageMockRecorder) UploadDirectory(ctx, objectBaseDir, localDir any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadDirectory", reflect.TypeOf((*MockObjectStorage)(nil).UploadDirectory), ctx, objectBaseDir, localDir)
-}
-
 // UploadObject mocks base method.
 func (m *MockObjectStorage) UploadObject(ctx context.Context, objectName string, data io.Reader, size int64) error {
 	m.ctrl.T.Helper()
@@ -1284,59 +1270,6 @@ func (m *MockObjectStorage) UploadObject(ctx context.Context, objectName string,
 func (mr *MockObjectStorageMockRecorder) UploadObject(ctx, objectName, data, size any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadObject", reflect.TypeOf((*MockObjectStorage)(nil).UploadObject), ctx, objectName, data, size)
-}
-
-// MockEncoder is a mock of Encoder interface.
-type MockEncoder struct {
-	ctrl     *gomock.Controller
-	recorder *MockEncoderMockRecorder
-	isgomock struct{}
-}
-
-// MockEncoderMockRecorder is the mock recorder for MockEncoder.
-type MockEncoderMockRecorder struct {
-	mock *MockEncoder
-}
-
-// NewMockEncoder creates a new mock instance.
-func NewMockEncoder(ctrl *gomock.Controller) *MockEncoder {
-	mock := &MockEncoder{ctrl: ctrl}
-	mock.recorder = &MockEncoderMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockEncoder) EXPECT() *MockEncoderMockRecorder {
-	return m.recorder
-}
-
-// Encode mocks base method.
-func (m *MockEncoder) Encode(id, path string, audioOnly bool) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Encode", id, path, audioOnly)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Encode indicates an expected call of Encode.
-func (mr *MockEncoderMockRecorder) Encode(id, path, audioOnly any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Encode", reflect.TypeOf((*MockEncoder)(nil).Encode), id, path, audioOnly)
-}
-
-// GetOutDirPrefix mocks base method.
-func (m *MockEncoder) GetOutDirPrefix() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOutDirPrefix")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// GetOutDirPrefix indicates an expected call of GetOutDirPrefix.
-func (mr *MockEncoderMockRecorder) GetOutDirPrefix() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutDirPrefix", reflect.TypeOf((*MockEncoder)(nil).GetOutDirPrefix))
 }
 
 // MockMetadataReader is a mock of MetadataReader interface.
