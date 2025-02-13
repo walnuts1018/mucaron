@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/url"
-	"regexp"
 
 	"github.com/google/uuid"
 	"github.com/walnuts1018/mucaron/backend/domain"
@@ -145,23 +143,5 @@ func (u *Usecase) UploadMusic(ctx context.Context, user entity.User, r io.Reader
 		return uuid.Nil, fmt.Errorf("failed to create music: %w", err)
 	}
 
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), u.cfg.EncodeTimeout)
-		defer cancel()
-
-		u.encode(ctx, tmpfile.Name(), music)
-	}()
-
 	return music.ID, nil
-}
-
-var re = regexp.MustCompile(`(stream_[\d]+.m3u8)`)
-
-func replaceM3U8URL(content string, serverEndpoint, musicID string) (string, error) {
-	newURL, err := url.JoinPath(serverEndpoint, "/api/v1/music/", musicID, "/stream/$1")
-	if err != nil {
-		return "", fmt.Errorf("failed to join url: %w", err)
-	}
-	replaced := re.ReplaceAllString(content, newURL)
-	return replaced, nil
 }

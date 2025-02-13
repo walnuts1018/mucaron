@@ -17,34 +17,31 @@ import (
 var ErrInvalidSessionSecretLength = errors.New("session secret must be 16, 24, or 32 bytes")
 
 type Config struct {
-	ServerPort     string        `env:"SERVER_PORT" envDefault:"8080"`
-	ServerEndpoint string        `env:"SERVER_ENDPOINT" envDefault:"http://localhost:80"`
-	LogLevel       slog.Level    `env:"LOG_LEVEL"`
-	LogType        LogType       `env:"LOG_TYPE" envDefault:"json"`
-	LogDir         string        `env:"LOG_DIR" envDefault:"/var/log/mucaron"`
-	MaxUploadSize  uint64        `env:"MAX_UPLOAD_SIZE" envDefault:"1073741824"` //1GB
-	EncodeTimeout  time.Duration `env:"ENCODE_TIMEOUT" envDefault:"1h"`
+	ServerPort     string     `env:"SERVER_PORT" envDefault:"8080"`
+	ServerEndpoint string     `env:"SERVER_ENDPOINT" envDefault:"http://localhost:80"`
+	LogLevel       slog.Level `env:"LOG_LEVEL"`
+	LogType        LogType    `env:"LOG_TYPE" envDefault:"json"`
 
 	PSQLDSN string `env:"PSQL_DSN" envDefault:""` // If PSQL_DSN is set, other PSQL_* variables will be ignored
 
 	// ------------------------ MinIO ------------------------
-	MinIOEndpoint       string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`
-	MinIOAccessKey      string `env:"MINIO_ACCESS_KEY,required"`
-	MinIOSecretKey      string `env:"MINIO_SECRET_KEY,required"`
-	MinIOUseSSL         bool   `env:"MINIO_USE_SSL" envDefault:"false"`
-	MinIOBucket         string `env:"MINIO_BUCKET" envDefault:"mucaron"`
-	MinIOPublicEndpoint string `env:"MINIO_PUBLIC_ENDPOINT" envDefault:""` // localhost:9000
-	// -------------------------------------------------------
+	MinIOEndpoint           string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`
+	MinIOAccessKey          string `env:"MINIO_ACCESS_KEY,required"`
+	MinIOSecretKey          string `env:"MINIO_SECRET_KEY,required"`
+	MinIOUseSSL             bool   `env:"MINIO_USE_SSL" envDefault:"false"`
+	MinIOSourceUploadBucket string `env:"MINIO_SOURCE_UPLOAD_BUCKET" envDefault:"mpeg-dash-encoder-source-upload"`
 
 	// ------------------------ Redis ------------------------
 	RedisHost     string `env:"REDIS_HOST" envDefault:"localhost"`
 	RedisPort     string `env:"REDIS_PORT" envDefault:"6379"`
 	RedisPassword string `env:"REDIS_PASSWORD,required"`
 	RedisDB       int    `env:"REDIS_DB" envDefault:"0"`
-	// -------------------------------------------------------
 
-	SessionSecret string `env:"SESSION_SECRET" envDefault:""`
+	// ------------------------ MpegDash ------------------------
+	MpegDashServerEndpoint string `env:"MPEG_DASH_SERVER_ENDPOINT" envDefault:"http://localhost:8081"`
+	MpegDashAdminToken     string `env:"MPEG_DASH_ADMIN_TOKEN,required"`
 
+	SessionSecret  string `env:"SESSION_SECRET" envDefault:""`
 	SessionOptions SessionOptions
 }
 
