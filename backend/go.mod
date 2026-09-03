@@ -5,7 +5,7 @@ go 1.23
 toolchain go1.23.4
 
 require (
-	dario.cat/mergo v1.0.1
+	dario.cat/mergo v1.0.2
 	github.com/Code-Hex/synchro v0.5.2
 	github.com/air-verse/air v1.61.1
 	github.com/caarlos0/env/v10 v10.0.0
