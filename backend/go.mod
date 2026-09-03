@@ -1,12 +1,10 @@
 module github.com/walnuts1018/mucaron/backend
 
-go 1.23
-
-toolchain go1.23.4
+go 1.23.4
 
 require (
 	dario.cat/mergo v1.0.1
-	github.com/Code-Hex/synchro v0.5.2
+	github.com/Code-Hex/synchro v0.5.4
 	github.com/air-verse/air v1.61.1
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/gin-contrib/sessions v1.0.1
@@ -161,7 +159,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/itchyny/timefmt-go v0.1.5 // indirect
+	github.com/itchyny/timefmt-go v0.1.6 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.5 // indirect
