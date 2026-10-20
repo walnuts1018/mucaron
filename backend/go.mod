@@ -1,8 +1,6 @@
 module github.com/walnuts1018/mucaron/backend
 
-go 1.23
-
-toolchain go1.23.4
+go 1.24
 
 require (
 	dario.cat/mergo v1.0.1
@@ -176,7 +174,7 @@ require (
 	github.com/karamaru-alpha/copyloopvar v1.1.0 // indirect
 	github.com/kisielk/errcheck v1.8.0 // indirect
 	github.com/kkHAIKE/contextcheck v1.1.5 // indirect
-	github.com/klauspost/compress v1.17.11 // indirect
+	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/kulti/thelper v0.6.3 // indirect
 	github.com/kunwardeep/paralleltest v1.0.10 // indirect
